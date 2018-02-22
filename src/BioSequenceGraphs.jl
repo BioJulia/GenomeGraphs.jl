@@ -1,5 +1,9 @@
+__precompile__()
+
 module BioSequenceGraphs
 
-# package code goes here
+include("Nodes.jl")
+include("Links.jl")
+include("SequenceGraph.jl")
 
-end # module
+end # module BioSequenceGraphs
