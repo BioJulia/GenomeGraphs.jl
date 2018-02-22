@@ -63,7 +63,7 @@ site](https://discourse.julialang.org/c/domain/bio).
 [travis-img]: https://travis-ci.org/BioJulia/BioSequenceGraphs.jl.svg?branch=master
 [travis-url]: https://travis-ci.org/BioJulia/BioSequenceGraphs.jl
 
-[appveyor-img]: https://ci.appveyor.com/api/projects/status/m4o4t50l3ih35jrt/branch/master?svg=true
+[appveyor-img]: https://ci.appveyor.com/api/projects/status/nbidye2svfrp9t5y/branch/master?svg=true
 [appveyor-url]: https://ci.appveyor.com/project/Ward9250/biosequencegraphs-jl/branch/master
 
 [codecov-img]: https://codecov.io/gh/BioJulia/BioSequenceGraphs.jl/branch/master/graph/badge.svg
