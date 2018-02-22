@@ -1,7 +1,7 @@
 
 struct SequenceGraph
-    nodes::Vector{Node}
-    links::Vector{Vector{Link}}
+    nodes::Vector{SequenceGraphNode}
+    links::Vector{Vector{SequenceGraphLink}}
 end
 
 nodes(sg::SequenceGraph) = sg.nodes
@@ -37,15 +37,4 @@ function add_link!(sg::SequenceGraph, source::NodeID, dest::NodeID, dist::Int)
     ls = links(sg)
     push!(ls[abs(source)], Link(source, dest, dist))
     push!(ls[abs(dest)], Link(dest, source, dist))
-end
-
-void SequenceGraph::add_link(sgNodeID_t source, sgNodeID_t dest, int32_t d) {
-    Link l(source,dest,d);
-    links[(source > 0 ? source : -source)].emplace_back(l);
-    std::swap(l.source,l.dest);
-    links[(dest > 0 ? dest : -dest)].emplace_back(l);
-}
-
-function remove_link!(sg::SequenceGraph, )
-
 end
