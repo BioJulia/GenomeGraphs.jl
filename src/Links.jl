@@ -1,17 +1,17 @@
 
-"""
-A SequenceGraphLink represents a link between two nodes
-(which are represented by the `SequenceGraphNode` type) in a SequenceGraph.
 
-Conceptually, links are basically a pair of nodes with signs.
-A positive node ID (e.g. 5 or +5) denotes the connection uses a node's source (end).
-Conversely, a negative node ID (e.g - 5) denotes the conection uses a node's sink (start).
-"""
 struct SequenceGraphLink
-    source::Int64
-    destination::Int64
+    source::NodeID
+    destination::NodeID
     dist::Int64
 end
 
+source(l::SequenceGraphLink) = l.source
+destination(l::SequenceGraphLink) = l.destination
+distance(l::SequenceGraphLink) = l.dist
 
+is_forward_link(l::SequenceGraphLink, n::NodeID) = source(l) == -n
 
+@inline function Base.isequal(a::SequenceGraphLink, b::SequenceGraphLink)
+    return source(a) == source(b) && destination(a) == destination(b) 
+end

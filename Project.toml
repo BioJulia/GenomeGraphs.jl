@@ -1,0 +1,8 @@
+name = "BioSequenceGraphs"
+uuid = "3aa97884-90e5-11e8-2134-af657ec4f203"
+authors = ["Ben J. Ward <benjward@protonmail.com>"]
+version = "0.1.0"
+
+[deps]
+BioSequences = "7e6ae17a-c86d-528c-b3b9-7f778a29fe59"
+TranscodingStreams = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"

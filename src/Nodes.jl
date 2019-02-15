@@ -9,8 +9,8 @@ Conceptually, a node in a sequence graph is a node which posesses a
 biological sequence, such nodes may be connected to other nodes through
 'Links'.
 
-SequenceGraphNodes are directional. They have a start (or 'sink' makred '-'),
-and they have an end (or 'source', marked '+').
+SequenceGraphNodes are directional. They have a start (marked '+'),
+and they have an end (marked '-').
 
 Furthuremore, nodes are canonical or palindromic sequences, else they are reverted.
 """
@@ -23,15 +23,22 @@ sequence(sn::SequenceGraphNode) = sn.sequence
 
 isactive(sn::SequenceGraphNode) = sn.active
 
-function reverse_complement!(sn::SequenceGraphNode)
-    reverse_complement!(sequence(sn))
+reverse_complement!(sn::SequenceGraphNode) = reverse_complement!(sequence(sn))
+
+length(sn::SequenceGraphNode) = length(sequence(sn))
+
+function iscanonical(seq::BioSequence{DNAAlphabet{2}})
+    i = 1
+    j = length(seq)
+    @inbounds while i < j
+        f = seq[i]
+        r = complement(seq[j])
+        f < r && return true
+        r < f && return false
+        i += 1
+        j -= 1
+    end
+    return true
 end
 
-function reverse_complement(sn::SequenceGraphNode{S}) where S <: BioSequence
-    return SeqeunceNode{S}(reverse_complement(sequence(sn)), isactive(sn))
-end
-
-
-
-
-
+iscanonical(sn::SequenceGraphNode) = iscanonical(sequence(sn))
