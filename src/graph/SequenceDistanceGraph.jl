@@ -43,6 +43,8 @@ struct SequenceDistanceGraph{S<:Sequence}
     links::Vector{Vector{DistanceGraphLink}}
 end
 
+include("SequenceGraphPath.jl")
+
 function SequenceDistanceGraph{S}() where {S<:Sequence}
     return SequenceDistanceGraph{S}(Vector{SDGNode{S}}(), Vector{Vector{DistanceGraphLink}}())
 end
@@ -267,4 +269,32 @@ function dump_to_gfa1(sg, filename)
     end
     close(gfa)
     close(fasta)
+end
+
+function get_all_unitigs(sg::SequenceDistanceGraph, min_nodes::Int)
+    unitigs = Vector{SequenceGraphPath}()
+    used = falses(length(nodes(sg)))
+    
+    for n in each_node_id(sg)
+        if used[n] || is_deleted(node(sg, n))
+            continue
+        end
+        used[n] = true
+        path = SequenceGraphPath(sg, [n])
+        # two passes: 0->fw, 1->bw, path is inverted twice, so still n is +
+        for pass in 1:2
+            fn = forward_links(sg, last(nodes(path)))
+            while length(fn) == 1
+                dst = destination(first(fn))
+                if !used[abs(dst)] && length(backward_links(sg, dst)) == 1
+                    push!(path, dst)
+                    used[abs(dst)] = true
+                else
+                    break
+                end
+                fn = forward_links(sg, dst)
+            end
+            reverse!(path)
+        end
+    end
 end

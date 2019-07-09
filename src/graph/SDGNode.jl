@@ -26,7 +26,7 @@ struct SDGNode{S}
     deleted::Bool
 end
 
-function empty_node(::Type{S}) where {S <: Sequence}
+function empty_node(::Type{S}) where {S<:Sequence}
     return SDGNode{S}(empty_seq(S), true)
 end
 
