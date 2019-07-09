@@ -17,9 +17,6 @@ end
 
 
 
-
-
-
 cigar = re"([0-9]+[MIDNS])+"
 overlap = re.cat(num, re.opt(re.cat(':', num))) | re.cat(num, ':') | re.cat(':', num) | cigar
 
@@ -71,6 +68,5 @@ context = Automa.CodeGenContext()
     $(Automa.generate_init_code(context, segment))
     p_end = p_eof = lastindex(data)
     $(Automa.generate_exec_code(context, machine, actions))
-    
+
 end
-    

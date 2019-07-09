@@ -2,12 +2,11 @@ __precompile__()
 
 module BioSequenceGraphs
 
+export SequenceDistanceGraph,
+    new_graph_from_kmerlist
+
 using BioSequences
 
-include("Nodes.jl")
-include("Links.jl")
-include("SequenceGraph.jl")
-include("IO.jl")
-include("GFA1/GFA1.jl")
-
+include("graph/SequenceDistanceGraph.jl")
+include("graph/graph_building.jl")
 end # module BioSequenceGraphs

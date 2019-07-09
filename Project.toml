@@ -4,5 +4,15 @@ authors = ["Ben J. Ward <benjward@protonmail.com>"]
 version = "0.1.0"
 
 [deps]
+Automa = "67c07d97-cdcb-5c2c-af73-a7f9c32a568b"
 BioSequences = "7e6ae17a-c86d-528c-b3b9-7f778a29fe59"
-TranscodingStreams = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
+
+[compat]
+BioSequences = "1.1"
+julia = "1.1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]

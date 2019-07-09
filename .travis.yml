@@ -4,12 +4,11 @@ os:
   - linux
   - osx
 julia:
-  - 0.6
+  - 1.1
+  - 1.2
   - nightly
 notifications:
-  email: false
-git:
-  depth: 99999999
+  email: benjward@protonmail.com
 
 ## uncomment the following lines to allow failures on nightly julia
 ## (tests will run but not make your overall status red)
