@@ -296,5 +296,9 @@ function get_all_unitigs(sg::SequenceDistanceGraph, min_nodes::Int)
             end
             reverse!(path)
         end
+        if length(nodes(path)) >= min_nodes
+            push!(unitigs, path)
+        end
     end
+    return unitigs
 end
