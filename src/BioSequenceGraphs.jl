@@ -2,8 +2,20 @@ __precompile__()
 
 module BioSequenceGraphs
 
-export SequenceDistanceGraph,
-    new_graph_from_kmerlist
+export
+    ### Sequence Distance Graph
+    SequenceDistanceGraph,
+    # Basic queries and properties
+    nodes,
+    n_nodes,
+    each_node_id,
+    node,
+    links,
+    sequence,
+    # Graph traversal
+    get_next_nodes,
+    get_previous_nodes,
+    get_all_unitigs
 
 using BioSequences
 

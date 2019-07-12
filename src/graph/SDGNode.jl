@@ -52,4 +52,5 @@ end
 @inline empty_seq(::Type{BioSequence{DNAAlphabet{2}}}) = dna2""s
 
 @inline is_deleted(n::SDGNode{S}) where {S<:Sequence} = n.deleted
-@inline length(n::SDGNode{S}) where {S<:Sequence} = length(n.seq)
+@inline Base.length(n::SDGNode{S}) where {S<:Sequence} = length(n.seq)
+@inline sequence(n::SDGNode{S}) where {S<:Sequence} = n.seq

@@ -40,42 +40,103 @@ sequences. These overlaps must be "perfect overlaps".
 """
 struct SequenceDistanceGraph{S<:Sequence}
     nodes::Vector{SDGNode{S}}
-    links::Vector{Vector{DistanceGraphLink}}
+    links::LinksT
 end
 
 include("SequenceGraphPath.jl")
 
+"Construct an empty sequence distance graph."
 function SequenceDistanceGraph{S}() where {S<:Sequence}
-    return SequenceDistanceGraph{S}(Vector{SDGNode{S}}(), Vector{Vector{DistanceGraphLink}}())
+    return SequenceDistanceGraph{S}(Vector{SDGNode{S}}(), LinksT())
 end
 
-n_nodes(sg::SequenceDistanceGraph) = length(nodes(sg))
-each_node_id(sg::SequenceDistanceGraph) = eachindex(nodes(sg))
-
-# Graph accessor functions
-# ------------------------
-
-nodes(sg::SequenceDistanceGraph) = sg.nodes
-node(sg::SequenceDistanceGraph, i::NodeID) = nodes(sg)[abs(i)]
-links(sg::SequenceDistanceGraph) = sg.links
+###
+### Basic query and property access functions
+###
 
 """
-    links(sg::SequenceGraph, node::NodeID)
+Get a reference to the vector of nodes in a graph `sg`.
 
-Get all of the links of a Node of a sequence graph.
+!!! warning
+    It is a bad idea to edit this vector yourself unless you know what you are
+    doing. 
+"""
+@inline nodes(sg::SequenceDistanceGraph) = sg.nodes
+
+"Get the number of nodes in the sequence distance graph `sg`."
+@inline n_nodes(sg::SequenceDistanceGraph) = length(nodes(sg))
+
+"Iterate over every node ID in the sequence distance graph `sg`."
+@inline each_node_id(sg::SequenceDistanceGraph) = eachindex(nodes(sg))
+
+"""
+Get a reference to the vector of vectors of links in a graph `sg`.
+
+!!! warning
+    It is a bad idea to edit this vector yourself unless you know what you are doing.
+"""
+@inline links(sg::SequenceDistanceGraph) = sg.links
+
+@inline function check_node_id(sg::SequenceDistanceGraph, i::NodeID)
+    if 0 < abs(i) ≤ n_nodes(sg)
+        return true
+    end
+    @error "Sequence graph has no node with ID of $i"
+end
+
+@inline node_unsafe(sg::SequenceDistanceGraph, n::NodeID) = @inbounds nodes(sg)[abs(n)]
+
+"""
+    node(sg::SequenceDistanceGraph, n::NodeID)
+
+Get a specific node from a sequence distance graph `sg` using its
+correlative node id `n`.
 
 !!! note
-    links accepts a NodeID that can be positive or negative.
+    `node` accepts a NodeID that can be positive or negative.
     E.g. providing either 5 or -5 both mean node 5 in a graph,
     and so you will get the links for node 5.
 """
-function links(sg::SequenceDistanceGraph, node::NodeID)
-    l = links(sg)
-    return l[abs(node)]
+@inline function node(sg::SequenceDistanceGraph, n::NodeID)
+    check_node_id(sg, n)
+    return nodes_unsafe(sg, n)
 end
 
-# Graph editing operations
-# ------------------------
+@inline links_unsafe(sg::SequenceDistanceGraph, n::NodeID) = @inbounds links(sg)[abs(n)]
+
+"""
+    links(sg::SequenceGraph, n::NodeID)
+
+Get all of the links of a Node of a sequence distance graph using its 
+correlative node id `n`.
+
+!!! note
+    `links` accepts a NodeID that can be positive or negative.
+    E.g. providing either 5 or -5 both mean node 5 in a graph,
+    and so you will get the links for node 5.
+"""
+@inline function links(sg::SequenceDistanceGraph, n::NodeID)
+    check_node_id(sg, n)
+    return links_unsafe(sg, n)
+end
+
+@inline sequence_unsafe(sg::SequenceDistanceGraph, n::NodeID) = sequence(node_unsafe(sg, n))
+
+"""
+    sequence(sg::SequenceDistanceGraph, n::NodeID)
+
+Get the full sequence of a node in a sequence distance graph using its
+correlative node id `n`.
+"""
+function sequence(sg::SequenceDistanceGraph, n::NodeID)
+    check_node_id(sg, n)
+    return sequence_unsafe(sg, n)
+end
+
+
+###
+### Graph editing operations
+###
 
 """
     add_node!(sg::SequenceDistanceGraph{S}, n::SDGNode{S}) where {S<:Sequence}
@@ -87,6 +148,10 @@ Returns the node ID used to access the new node added in the graph.
 !!! warning
     Currently, we don't enforce the sequence in the node is canonical here.
     We just trust that it is canonical.
+
+!!! note
+    Adding a node to the graph does just that. After adding the node it still
+    will not be linked to any other nodes.
 """
 function add_node!(sg::SequenceDistanceGraph{S}, n::SDGNode{S}) where {S<:Sequence}
     newlen = length(push!(nodes(sg),n))
@@ -103,6 +168,14 @@ Returns the node ID used to access the new node added in the graph.
 
 Can accept any sequence type and will attempt to coerce the input sequence to the
 type required by the graph.
+
+!!! warning
+    Currently, we don't enforce the sequence in the node is canonical here.
+    We just trust that it is canonical.
+
+!!! note
+    Adding a node to the graph does just that. After adding the node it still
+    will not be linked to any other nodes.
 """
 function add_node!(sg::SequenceDistanceGraph{S}, seq::Sequence) where {S<:Sequence}
     return add_node!(sg, SDGNode{S}(convert(S, seq), false))
@@ -112,6 +185,9 @@ end
     remove_node!(sg::SequenceDistanceGraph{S}, n::NodeID) where {S<:Sequence}
 
 Remove a node from a sequence distance graph.
+
+!!! note
+    Links involving this node will also be removed from the graph.
 """
 function remove_node!(sg::SequenceDistanceGraph{S}, n::NodeID) where {S<:Sequence}
     oldlinks = copy(links(sg, n))
@@ -172,9 +248,9 @@ function disconnect_node!(sg::SequenceDistanceGraph, n::NodeID)
     end
 end
 
-
-# Graph traversing operations
-# ---------------------------
+###
+### Graph traversal
+###
 
 """
     forward_links(sg::SequenceDistanceGraph, n::NodeID)
@@ -271,34 +347,5 @@ function dump_to_gfa1(sg, filename)
     close(fasta)
 end
 
-function get_all_unitigs(sg::SequenceDistanceGraph, min_nodes::Int)
-    unitigs = Vector{SequenceGraphPath}()
-    used = falses(length(nodes(sg)))
+
     
-    for n in each_node_id(sg)
-        if used[n] || is_deleted(node(sg, n))
-            continue
-        end
-        used[n] = true
-        path = SequenceGraphPath(sg, [n])
-        # two passes: 0->fw, 1->bw, path is inverted twice, so still n is +
-        for pass in 1:2
-            fn = forward_links(sg, last(nodes(path)))
-            while length(fn) == 1
-                dst = destination(first(fn))
-                if !used[abs(dst)] && length(backward_links(sg, dst)) == 1
-                    push!(path, dst)
-                    used[abs(dst)] = true
-                else
-                    break
-                end
-                fn = forward_links(sg, dst)
-            end
-            reverse!(path)
-        end
-        if length(nodes(path)) >= min_nodes
-            push!(unitigs, path)
-        end
-    end
-    return unitigs
-end
