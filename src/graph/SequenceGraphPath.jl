@@ -4,7 +4,8 @@ struct SequenceGraphPath
 end
 
 @inline nodes(p::SequenceGraphPath) = p.nodes
-@inline push!(p::SequenceGraphPath, n::NodeID) = push!(nodes(p), n)
+@inline Base.push!(p::SequenceGraphPath, n::NodeID) = push!(nodes(p), n)
+@inline graph(p::SequenceGraphPath) = p.sg
 
 function Base.reverse!(p::SequenceGraphPath)
     nds = nodes(p)
