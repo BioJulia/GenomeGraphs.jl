@@ -213,16 +213,16 @@ end
 
 function connect_unitigs_by_overlaps!(sg::GRAPH_TYPE, ::Type{DNAKmer{K}}) where {K}
     in, out = find_unitig_overlaps(sg, DNAKmer{K})
+    ol = length(out)
     @info string("Linking ", length(nodes(sg)), " unitigs by their ", K - 1, "bp (K - 1) overlaps")
     # Connect all out -> in for all combinations on each kmer.
     next_out_idx = 1
     for i in in
-        while first(out[next_out_idx]) < first(i)
+        while next_out_idx <= ol && first(out[next_out_idx]) < first(i)
             next_out_idx += 1
         end
         oidx = next_out_idx
-        while oidx <= length(out) && first(out[oidx]) == first(i)
-            @debug string("Adding link to graph between", last(i), last(out[oidx]))
+        while oidx <= ol && first(out[oidx]) == first(i)
             add_link!(sg, last(i), last(out[oidx]), -K + 1) # No support, although we could add the DBG operation as such.
             oidx += 1
         end
