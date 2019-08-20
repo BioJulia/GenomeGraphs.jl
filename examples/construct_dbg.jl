@@ -14,7 +14,7 @@ Pseudoseq.sequence("ecoli-ref.fasta", "pe-reads.fastq"; ng = 5000, flen = 700, c
 
  r = FASTQ.Reader(open("pe-reads.fastq", "r"))
 
-read_set = Set{DNASequence}()
+read_set = Set{LongDNASeq}()
 
 for record in r
     push!(read_set,FASTQ.sequence(record))

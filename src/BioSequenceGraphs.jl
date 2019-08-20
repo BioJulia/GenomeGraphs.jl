@@ -17,7 +17,7 @@ export
     get_previous_nodes,
     get_all_unitigs
 
-using BioSequences
+using BioSequences, FASTX
 
 include("graph/SequenceDistanceGraph.jl")
 include("graph/graph_building.jl")

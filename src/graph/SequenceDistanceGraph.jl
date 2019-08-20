@@ -38,7 +38,7 @@ does not change the link.
 If the distance in a link is negative, this represents an overlap between two
 sequences. These overlaps must be "perfect overlaps".
 """
-struct SequenceDistanceGraph{S<:Sequence}
+struct SequenceDistanceGraph{S<:BioSequence}
     nodes::Vector{SDGNode{S}}
     links::LinksT
 end
@@ -46,7 +46,7 @@ end
 include("SequenceGraphPath.jl")
 
 "Construct an empty sequence distance graph."
-function SequenceDistanceGraph{S}() where {S<:Sequence}
+function SequenceDistanceGraph{S}() where {S<:BioSequence}
     return SequenceDistanceGraph{S}(Vector{SDGNode{S}}(), LinksT())
 end
 
@@ -99,7 +99,7 @@ correlative node id `n`.
 """
 @inline function node(sg::SequenceDistanceGraph, n::NodeID)
     check_node_id(sg, n)
-    return nodes_unsafe(sg, n)
+    return node_unsafe(sg, n)
 end
 
 @inline links_unsafe(sg::SequenceDistanceGraph, n::NodeID) = @inbounds links(sg)[abs(n)]
@@ -139,7 +139,7 @@ end
 ###
 
 """
-    add_node!(sg::SequenceDistanceGraph{S}, n::SDGNode{S}) where {S<:Sequence}
+    add_node!(sg::SequenceDistanceGraph{S}, n::SDGNode{S}) where {S<:BioSequence}
 
 Add a node to a sequence distance graph.
 
@@ -153,14 +153,14 @@ Returns the node ID used to access the new node added in the graph.
     Adding a node to the graph does just that. After adding the node it still
     will not be linked to any other nodes.
 """
-function add_node!(sg::SequenceDistanceGraph{S}, n::SDGNode{S}) where {S<:Sequence}
+function add_node!(sg::SequenceDistanceGraph{S}, n::SDGNode{S}) where {S<:BioSequence}
     newlen = length(push!(nodes(sg),n))
     push!(links(sg), Vector{DistanceGraphLink}())
     return newlen
 end
 
 """
-   add_node!(sg::SequenceDistanceGraph{S}, seq::Sequence) where {S<:Sequence}
+   add_node!(sg::SequenceDistanceGraph{S}, seq::BioSequence) where {S<:BioSequence}
 
 Add a sequence to a sequence distance graph as a node.
 
@@ -177,19 +177,19 @@ type required by the graph.
     Adding a node to the graph does just that. After adding the node it still
     will not be linked to any other nodes.
 """
-function add_node!(sg::SequenceDistanceGraph{S}, seq::Sequence) where {S<:Sequence}
+function add_node!(sg::SequenceDistanceGraph{S}, seq::BioSequence) where {S<:BioSequence}
     return add_node!(sg, SDGNode{S}(convert(S, seq), false))
 end
 
 """
-    remove_node!(sg::SequenceDistanceGraph{S}, n::NodeID) where {S<:Sequence}
+    remove_node!(sg::SequenceDistanceGraph{S}, n::NodeID) where {S<:BioSequence}
 
 Remove a node from a sequence distance graph.
 
 !!! note
     Links involving this node will also be removed from the graph.
 """
-function remove_node!(sg::SequenceDistanceGraph{S}, n::NodeID) where {S<:Sequence}
+function remove_node!(sg::SequenceDistanceGraph{S}, n::NodeID) where {S<:BioSequence}
     oldlinks = copy(links(sg, n))
     for oldlink in oldlinks
         remove_link!(sg, source(oldlink), destination(oldlink))

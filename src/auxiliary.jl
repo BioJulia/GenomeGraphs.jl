@@ -1,12 +1,12 @@
 
 """
-    get_fastq_sequences(fastq_file,::Type{S})where S <: BioSequences.Sequence
+    get_fastq_sequences(fastq_file,::Type{S})where S <: BioSequences.BioSequence
 
 
 As we have some dependency issues related to the biosequences package
 I implement my own  fastq reader just for testing the functionalities
 """
-function get_fastq_sequences(fastq_file,::Type{S})where S <: BioSequences.Sequence
+function get_fastq_sequences(fastq_file,::Type{S})where S <: BioSequences.BioSequence
     a = readlines(open(fastq_file,"r"));
     println(S)
     seqs = Set{S}()
@@ -27,7 +27,7 @@ For testing purposes we generate some paired_end reads by masking the middle par
 We represent paired-end reads as a tuple of two biosequences and an integer range representing the possible distance
 
 """
-function get_paired_end_reads(seqs::Set{S})where S <: BioSequences.Sequence
+function get_paired_end_reads(seqs::Set{S})where S <: BioSequences.BioSequence
     masked_seqs= Set{Tuple{S,S,UnitRange{Int64}}}()
     for seq in seqs
         upp = Base.length(seq)

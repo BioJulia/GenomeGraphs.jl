@@ -6,7 +6,7 @@
 The SDGNode type represents a node in a SequenceDistanceGraph.
 
 At present it contains only two fields, first it holds an instance of a BioSequences
-Sequence type.
+BioSequence type.
 
 Secondly, it tracks a flag which indicates if the node has been
 deleted or not.
@@ -21,12 +21,12 @@ deleted or not.
     So just marking a node as deleted and not using it anymore is a lazy but sometimes
     helpful choice.
 """
-struct SDGNode{S}
+struct SDGNode{S<:BioSequence}
     seq::S
     deleted::Bool
 end
 
-function empty_node(::Type{S}) where {S<:Sequence}
+function empty_node(::Type{S}) where {S<:BioSequence}
     return SDGNode{S}(empty_seq(S), true)
 end
 
@@ -40,17 +40,17 @@ end
 # sequence.
 macro dna2_str(seq, flag)
     if flag == "s"
-        return BioSequence{DNAAlphabet{2}}(BioSequences.remove_newlines(seq))
+        return LongSequence{DNAAlphabet{2}}(BioSequences.remove_newlines(seq))
     elseif flag == "d"
         return quote
-            BioSequence{DNAAlphabet{2}}($(BioSequences.remove_newlines(seq)))
+            LongSequence{DNAAlphabet{2}}($(BioSequences.remove_newlines(seq)))
         end
     end
     error("Invalid DNA flag: '$(flag)'")
 end
 
-@inline empty_seq(::Type{BioSequence{DNAAlphabet{2}}}) = dna2""s
+@inline empty_seq(::Type{LongSequence{DNAAlphabet{2}}}) = dna2""s
 
-@inline is_deleted(n::SDGNode{S}) where {S<:Sequence} = n.deleted
-@inline Base.length(n::SDGNode{S}) where {S<:Sequence} = length(n.seq)
-@inline sequence(n::SDGNode{S}) where {S<:Sequence} = n.seq
+@inline is_deleted(n::SDGNode{S}) where {S<:BioSequence} = n.deleted
+@inline Base.length(n::SDGNode{S}) where {S<:BioSequence} = length(n.seq)
+@inline sequence(n::SDGNode{S}) where {S<:BioSequence} = n.seq

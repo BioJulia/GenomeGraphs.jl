@@ -20,13 +20,13 @@
 # in BioSequences v2, the unitig graphs this will produce for medium size genomes
 # should be pretty darned good in the first place.
 
-struct Kidx{K}
-    kmer::DNAKmer{K}
+struct Kidx{M<:AbstractMer}
+    kmer::M
     idx::UInt64
 end
 
-encoded_data(mer) = reinterpret(UInt64, mer)
-
+#=
+This should be removable since BioSequences v2.
 function iscanonical(seq)
     i = 1
     j = length(seq)
@@ -41,31 +41,34 @@ function iscanonical(seq)
     return true
 end
 
+
 function canonical!(seq::BioSequence{DNAAlphabet{2}})
     if !iscanonical(seq)
         reverse_complement!(seq)
     end
     return seq
 end
+=#
 
 # TODO: Update BioSequences with new neighbour iterators instead. For now, these
 # functions will do.
-function kmer_fw_neighbours(mer::DNAKmer{K}) where {K}
-    d = encoded_data(mer)
+function kmer_fw_neighbours(mer::M) where {M<:AbstractMer}
+    d = BioSequences.encoded_data(mer)
     base = d << 2
-    return (DNAKmer{K}(base), DNAKmer{K}(base + 0x01), DNAKmer{K}(base + 0x02), DNAKmer{K}(base + 0x03))
+    return (M(base), M(base + 0x01), M(base + 0x02), M(base + 0x03))
 end
 
-function kmer_bw_neighbours(mer::DNAKmer{K}) where {K}
-    d = encoded_data(mer)
+function kmer_bw_neighbours(mer::M) where {M<:AbstractMer}
+    k = BioSequences.ksize(M) - 1
+    d = BioSequences.encoded_data(mer)
     base = d >> 2
     BT = typeof(base)
-    return (DNAKmer{K}(base), DNAKmer{K}(base + (BT(1) << 2(K - 1))), DNAKmer{K}(base + (BT(2) << 2(K - 1))), DNAKmer{K}(base + (BT(3) << 2(K - 1))))
+    return (M(base), M(base + (BT(1) << 2(k))), M(base + (BT(2) << 2(k))), M(base + (BT(3) << 2(k))))
 end
 
-function is_end_bw(mer::DNAKmer{K}, merlist::Vector{DNAKmer{K}}) where {K}
+function is_end_bw(mer::M, merlist::Vector{M}) where {M<:AbstractMer}
     @debug "Checking if kmer is end BW" mer
-    next = Vector{Kidx{K}}()
+    next = Vector{Kidx{M}}()
     get_bw_idxs!(next, mer, merlist)
     @debug "BW neighbours:" next
     length(next) != 1 && return true
@@ -76,9 +79,9 @@ function is_end_bw(mer::DNAKmer{K}, merlist::Vector{DNAKmer{K}}) where {K}
     return false
 end
 
-function is_end_fw(mer::DNAKmer{K}, merlist::Vector{DNAKmer{K}}) where {K}
+function is_end_fw(mer::M, merlist::Vector{M}) where {M<:AbstractMer}
     @debug "Checking if kmer is end FW" mer
-    next = Vector{Kidx{K}}()
+    next = Vector{Kidx{M}}()
     get_fw_idxs!(next, mer, merlist)
     @debug "FW neighbours:" next
     length(next) != 1 && return true
@@ -89,32 +92,36 @@ function is_end_fw(mer::DNAKmer{K}, merlist::Vector{DNAKmer{K}}) where {K}
     return false
 end
 
-function get_bw_idxs!(out::Vector{Kidx{K}}, kmer::DNAKmer{K}, kmerlist::Vector{DNAKmer{K}}) where {K}
+function get_bw_idxs!(out::Vector{Kidx{M}}, kmer::M, kmerlist::Vector{M}) where {M<:AbstractMer}
     empty!(out)
     for n in kmer_bw_neighbours(kmer)
         cnext = canonical(n)
         cidx = min(searchsortedfirst(kmerlist, cnext), length(kmerlist))
         if @inbounds kmerlist[cidx] == cnext
-            push!(out, Kidx{K}(n, cidx))
+            push!(out, Kidx{M}(n, cidx))
         end
     end
 end
 
-function get_fw_idxs!(out::Vector{Kidx{K}}, kmer::DNAKmer{K}, kmerlist::Vector{DNAKmer{K}}) where {K}
+function get_fw_idxs!(out::Vector{Kidx{M}}, kmer::M, kmerlist::Vector{M}) where {M<:AbstractMer}
     empty!(out)
     for n in kmer_fw_neighbours(kmer)
         cnext = canonical(n)
         cidx = min(searchsortedfirst(kmerlist, cnext), length(kmerlist))
         if @inbounds kmerlist[cidx] == cnext
-            push!(out, Kidx{K}(n, cidx))
+            push!(out, Kidx{M}(n, cidx))
         end
     end
 end
 
-const GRAPH_TYPE = SequenceDistanceGraph{BioSequence{DNAAlphabet{2}}}
+const GRAPH_TYPE = SequenceDistanceGraph{LongSequence{DNAAlphabet{2}}}
 
-function build_unitigs_from_kmerlist!(sg::GRAPH_TYPE, kmerlist::Vector{DNAKmer{K}}) where {K}
-    @info string("Constructing unitigs from ", length(kmerlist), " ", K, "-mers")
+function build_unitigs_from_kmerlist!(
+    sg::SequenceDistanceGraph{LongSequence{A}},
+    kmerlist::Vector{M}) where {A<:DNAAlphabet,M<:AbstractMer{DNAAlphabet{2}}}
+    
+    
+    @info string("Constructing unitigs from ", length(kmerlist), " ", BioSequences.ksize(M), "-mers")
     used_kmers = falses(length(kmerlist))
     
     for start_kmer_idx in eachindex(kmerlist)
@@ -139,7 +146,7 @@ function build_unitigs_from_kmerlist!(sg::GRAPH_TYPE, kmerlist::Vector{DNAKmer{K
         if end_bw && end_fw
             @debug "Kmer is single unitig" start_kmer_idx start_kmer 
             # Kmer as unitig
-            s = BioSequence{DNAAlphabet{2}}(start_kmer)
+            s = LongSequence{A}(start_kmer)
             used_kmers[start_kmer_idx] = true
         else
             # A unitig starts on this kmer.
@@ -152,8 +159,8 @@ function build_unitigs_from_kmerlist!(sg::GRAPH_TYPE, kmerlist::Vector{DNAKmer{K
             end
             @debug "Start of unitig" start_kmer current_kmer end_bw end_fw
             # Start unitig 
-            s = BioSequence{DNAAlphabet{2}}(current_kmer)
-            fwn = Vector{Kidx{K}}()
+            s = LongSequence{A}(current_kmer)
+            fwn = Vector{Kidx{M}}()
             while !end_fw
                 # Add end nucleotide, update current kmer.
                 get_fw_idxs!(fwn, current_kmer, kmerlist)
@@ -178,17 +185,21 @@ function build_unitigs_from_kmerlist!(sg::GRAPH_TYPE, kmerlist::Vector{DNAKmer{K
     return sg
 end
 
-function find_unitig_overlaps(sg::GRAPH_TYPE, ::Type{DNAKmer{K}}) where {K}
-    @info string("Identifying the ", K - 1, "bp (K - 1) overlaps between ", length(nodes(sg)), " unitigs")
+minus_one_k(::Type{Mer{A,K}}) where {A,K} = Mer{A,K-1}
+minus_one_k(::Type{BigMer{A,K}}) where {A,K} = BigMer{A,K-1}
+
+function find_unitig_overlaps(sg::GRAPH_TYPE, ::Type{M}) where {M<:AbstractMer}
+    @info string("Identifying the ", BioSequences.ksize(M) - 1, "bp (K - 1) overlaps between ", length(nodes(sg)), " unitigs")
     # Save the (k-1)mer in (rev on first k-1 / fw on last k-1) or out ( fw on first k-1 / bw on last k-1)
     @debug "Sorting K - 1 overlaps as `in` or `out`"
-    in = Vector{Tuple{DNAKmer{K-1},NodeID}}()
-    out = Vector{Tuple{DNAKmer{K-1},NodeID}}()
+    
+    in = Vector{Tuple{minus_one_k(M),NodeID}}()
+    out = Vector{Tuple{minus_one_k(M),NodeID}}()
     sizehint!(in, length(nodes(sg)))
     sizehint!(out, length(nodes(sg)))
     for nid in eachindex(nodes(sg))
         nodeseq = node(sg, nid).seq
-        firstmer = DNAKmer{K-1}(nodeseq[1:K - 1])
+        firstmer = minus_one_k(M)(nodeseq[1:BioSequences.ksize(M) - 1])
         @debug string("Considering node ", nid) nodeseq
         if iscanonical(firstmer)
             @debug "Source overlap is canonical"
@@ -197,7 +208,7 @@ function find_unitig_overlaps(sg::GRAPH_TYPE, ::Type{DNAKmer{K}}) where {K}
             @debug "Source overlap is not canonical"
             push!(out, (reverse_complement(firstmer), nid))
         end
-        lastmer = DNAKmer{K-1}(nodeseq[end - (K - 2):end])
+        lastmer = minus_one_k(M)(nodeseq[end - (BioSequences.ksize(M) - 2):end])
         if iscanonical(lastmer)
             @debug "Sink overlap is canonical"
             push!(out, (lastmer, -nid))
@@ -211,10 +222,10 @@ function find_unitig_overlaps(sg::GRAPH_TYPE, ::Type{DNAKmer{K}}) where {K}
     return in, out
 end
 
-function connect_unitigs_by_overlaps!(sg::GRAPH_TYPE, ::Type{DNAKmer{K}}) where {K}
-    in, out = find_unitig_overlaps(sg, DNAKmer{K})
+function connect_unitigs_by_overlaps!(sg::GRAPH_TYPE, ::Type{M}) where {M<:AbstractMer}
+    in, out = find_unitig_overlaps(sg, M)
     ol = length(out)
-    @info string("Linking ", length(nodes(sg)), " unitigs by their ", K - 1, "bp (K - 1) overlaps")
+    @info string("Linking ", length(nodes(sg)), " unitigs by their ", BioSequences.ksize(M) - 1, "bp (K - 1) overlaps")
     # Connect all out -> in for all combinations on each kmer.
     next_out_idx = 1
     for i in in
@@ -223,22 +234,22 @@ function connect_unitigs_by_overlaps!(sg::GRAPH_TYPE, ::Type{DNAKmer{K}}) where 
         end
         oidx = next_out_idx
         while oidx <= ol && first(out[oidx]) == first(i)
-            add_link!(sg, last(i), last(out[oidx]), -K + 1) # No support, although we could add the DBG operation as such.
+            add_link!(sg, last(i), last(out[oidx]), -BioSequences.ksize(M) + 1) # No support, although we could add the DBG operation as such.
             oidx += 1
         end
     end
 end
 
-function new_graph_from_kmerlist(kmerlist::Vector{DNAKmer{K}}) where {K}
+function new_graph_from_kmerlist(kmerlist::Vector{DNAMer{K}}) where {K}
     str = string("onstructing Sequence Distance Graph from ", length(kmerlist), ' ', K, "-mers")
     @info string('C', str)
     sg = GRAPH_TYPE()
     build_unitigs_from_kmerlist!(sg, kmerlist)
     if n_nodes(sg) > 1
-        connect_unitigs_by_overlaps!(sg, DNAKmer{K})
+        connect_unitigs_by_overlaps!(sg, DNAMer{K})
     end
     @info string("Done c", str)
     return sg
 end
-SequenceDistanceGraph(kmerlist::Vector{DNAKmer{K}}) where {K} = new_graph_from_kmerlist(kmerlist)
+SequenceDistanceGraph(kmerlist::Vector{DNAMer{K}}) where {K} = new_graph_from_kmerlist(kmerlist)
 
