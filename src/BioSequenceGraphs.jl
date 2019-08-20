@@ -15,10 +15,14 @@ export
     # Graph traversal
     get_next_nodes,
     get_previous_nodes,
-    get_all_unitigs
+    get_all_unitigs,
+    ### WorkSpace
+    WorkSpace,
+    add_paired_reads!
 
-using BioSequences, FASTX
+using BioSequences, FASTX, ReadDatastores
 
 include("graph/SequenceDistanceGraph.jl")
 include("graph/graph_building.jl")
+include("workspace/WorkSpace.jl")
 end # module BioSequenceGraphs
