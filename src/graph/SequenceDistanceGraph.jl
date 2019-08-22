@@ -347,5 +347,5 @@ function dump_to_gfa1(sg, filename)
     close(fasta)
 end
 
-
+Base.summary(io::IO, sdg::SequenceDistanceGraph) = print(io, "Sequence distance graph (", n_nodes(sdg), " nodes)")
     

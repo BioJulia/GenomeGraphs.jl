@@ -27,6 +27,8 @@ end
 function Base.show(io::IO, ws::WorkSpace)
     println("Graph Genome workspace")
     
+    println(io, ' ', summary(ws.sdg))
+    
     println(" Paired Read Datastores (", length(ws.paired_reads_datastores), "):")
     for ds in ws.paired_reads_datastores
         println(io, "  ", summary(ds)[23:end])
