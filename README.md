@@ -16,7 +16,7 @@ genotypes/haplotypes and variation.
 
 ## Installation
 
-BioSequenceGraphs is currently in **alpha** development.
+BioSequenceGraphs is currently in **pre-alpha** development.
 But you can clone BioSequenceGraphs from the Julia REPL:
 
 ```julia
@@ -30,7 +30,7 @@ BioSequenceGraphs is tested against Julia `1.X` on Linux, OS X, and Windows.
 
 **Latest build status:**
 
-[![](https://travis-ci.com/BioJulia/BioSequenceGraphs.svg?branch=master)](https://travis-ci.com/BioJulia/BioSequenceGraphs)
+[![Build Status](https://travis-ci.com/BioJulia/BioSequenceGraphs.jl.svg?branch=master)](https://travis-ci.com/BioJulia/BioSequenceGraphs.jl)
 [![](https://ci.appveyor.com/api/projects/status/fp8lv0bfdblf5aki?svg=true)](https://ci.appveyor.com/project/BenJWard/biosequencegraphs)
 
 
