@@ -20,11 +20,14 @@ export
     
     # BioSequences
     BioSequence,
+    LongSequence,
     AbstractMer,
     Mer,
     BigMer,
     DNAMer,
     DNAKmer,
+    BigDNAMer,
+    BigDNAKmer,
     
 
     ###
@@ -63,7 +66,13 @@ export
     
     ### WorkSpace
     WorkSpace,
-    add_paired_reads!
+    add_paired_reads!,
+    paired_reads,
+    
+    ###
+    ### Processes
+    ###
+    dbg
 
 using BioSequences, FASTX, ReadDatastores
 import BioSequences.EveryMerIterator
@@ -74,4 +83,5 @@ include("mertools/counting.jl")
 include("graph/SequenceDistanceGraph.jl")
 include("graph/graph_building.jl")
 include("workspace/WorkSpace.jl")
+include("processes/dbg.jl")
 end # module BioSequenceGraphs
