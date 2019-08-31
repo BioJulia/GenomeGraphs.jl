@@ -3,24 +3,24 @@
 ### `MerCounts`provides functionality to count and store an index of the kmers
 ### present in the graph as well as multiple instances of counts for these kmers.
 
-@enum KmerCountMode Canonical, NonCanonical
+@enum KmerCountMode Canonical NonCanonical
 
 struct MerCounts{M<:AbstractMer}
     mer_index::Vector{M}            # Ordered list of kmer that contain counts
-    count_names::Vector{String}     # Names of the count vectors
+    count_names::Vector{Symbol}     # Names of the count vectors
     counts::Vector{Vector{UInt16}}  # Count vectors, each contains an entry per mer in the index
-    name::String                    # The name of this MerCounts
+    name::Symbol                    # The name of this MerCounts
     counting_mode::KmerCountMode
 end
 
 # Construction of empty MerCounts with a name
-@inline function MerCounts{M}(name::String, mode::KmerCountMode = Canonical) where {M<:AbstractMer}
-    return MerCounts{M}(Vector{M}(), Vector{String}(), Vector{Vector{UInt16}}(), name, mode)
+@inline function MerCounts{M}(name::Symbol, mode::KmerCountMode = Canonical) where {M<:AbstractMer}
+    return MerCounts{M}(Vector{M}(), Vector{Symbol}(), Vector{Vector{UInt16}}(), name, mode)
 end
 
 # Construction from a sequence distance graph
 function MerCounts{M}(
-    name::String,
+    name::Symbol,
     graph::SequenceDistanceGraph,
     mode::KmerCountMode = Canonical) where {M<:AbstractMer}
     @info string("Creating an empty kmer count datastore called ", name)
@@ -58,7 +58,7 @@ function _count_and_collapse!(mers::Vector{M}, counts::Vector{UInt16}) where {M<
     return nothing
 end
 
-function index!(mc::MerMounts{M}, graph::SequenceDistanceGraph) where {M<:AbstractMer}
+function index!(mc::MerCounts{M}, graph::SequenceDistanceGraph) where {M<:AbstractMer}
     @info "Indexing kmer counts of sequence distance graph"
     @info "Populating index with sequence distance graph mers"
     # Add all Kmers from sequence distance graph.    
@@ -94,7 +94,11 @@ function index!(mc::MerMounts{M}, graph::SequenceDistanceGraph) where {M<:Abstra
     first_count = Vector{UInt16}()
     sizehint!(first_count, length(mcindex))
     push!(mc.counts, first_count)
-    push!(mc.count_names, "sdg")
+    push!(mc.count_names, :sdg)
     _count_and_collapse!(mcindex, first_count)
     return mc
+end
+
+function Base.summary(io::IO, mc::MerCounts{M}) where {M}
+    print(io, BioSequences.ksize(M), "-mer Counts Datastore '",  mc.name, "': ", length(mc.counts), " stored ", BioSequences.ksize(M), "-mer counts")
 end

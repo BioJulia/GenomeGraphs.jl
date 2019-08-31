@@ -4,7 +4,7 @@ mutable struct WorkSpace
     paired_reads_datastores::Vector{PairedReads}
     long_reads_datastores::Vector{LongReads}
     linked_reads_datastores::Vector{LinkedReads}
-    #mer_count_stores::Vector{MerCounts}
+    mer_count_stores::Vector{MerCounts}
 end
 
 "Create an empty workspace"
@@ -12,7 +12,8 @@ function WorkSpace()
     return WorkSpace(SequenceDistanceGraph{LongDNASeq}(),
                      Vector{PairedReads}(),
                      Vector{LongReads}(),
-                     Vector{LinkedReads}())
+                     Vector{LinkedReads}(),
+                     Vector{MerCounts}())
 end
 
 """
@@ -41,6 +42,20 @@ function add_paired_reads!(ws::WorkSpace, file::String, name::Union{String,Nothi
     return ws
 end
 
+function add_mer_counts!(ws::WorkSpace, ::Type{M}, mode::KmerCountMode, name::Symbol) where {M<:AbstractMer}
+    push!(ws.mer_count_stores, MerCounts{M}(name, ws.sdg, mode))
+    return ws
+end
+
+function mer_counts(ws::WorkSpace, name::Symbol)
+    for mc in ws.mer_count_stores
+        if mc.name == name
+            return mc
+        end
+    end
+    error(string("WorkSpace has no mer count datastore datastore called ", name))
+end
+
 function Base.show(io::IO, ws::WorkSpace)
     println("Graph Genome workspace")
     
@@ -59,5 +74,12 @@ function Base.show(io::IO, ws::WorkSpace)
     println(" Linked Read Datastores (", length(ws.linked_reads_datastores), "):")
     for ds in ws.linked_reads_datastores
         println(io, "  ", summary(ds)[23:end])
+    end
+    
+    println(" Mer Count Datastores (", length(ws.mer_count_stores), "):")
+    for ds in ws.mer_count_stores
+        msg = summary(ds)
+        i = first(findfirst("'", msg))
+        println(io, "  ", msg[i:end])
     end
 end

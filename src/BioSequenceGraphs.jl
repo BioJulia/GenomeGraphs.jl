@@ -62,17 +62,23 @@ export
     hist,
     hist!,
     
-    
+    ###
+    ### MerCounts
+    ###
+    MerCounts,
     
     ### WorkSpace
     WorkSpace,
     add_paired_reads!,
     paired_reads,
+    add_mer_counts!,
+    mer_counts,
     
     ###
     ### Processes
     ###
-    dbg
+    dbg,
+    dbg!
 
 using BioSequences, FASTX, ReadDatastores
 import BioSequences.EveryMerIterator
@@ -82,6 +88,7 @@ include("mertools/counting.jl")
 
 include("graph/SequenceDistanceGraph.jl")
 include("graph/graph_building.jl")
+include("datastores/kmer-counts.jl")
 include("workspace/WorkSpace.jl")
 include("processes/dbg.jl")
 end # module BioSequenceGraphs
