@@ -102,3 +102,7 @@ end
 function Base.summary(io::IO, mc::MerCounts{M}) where {M}
     print(io, BioSequences.ksize(M), "-mer Counts Datastore '",  mc.name, "': ", length(mc.counts), " stored ", BioSequences.ksize(M), "-mer counts")
 end
+
+function Base.show(io::IO, mc::MerCounts{M}) where {M}
+    summary(io, mc)
+end

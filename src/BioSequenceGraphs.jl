@@ -88,6 +88,9 @@ include("mertools/counting.jl")
 
 include("graph/SequenceDistanceGraph.jl")
 include("graph/graph_building.jl")
+
+include("indexes/unique-kmers.jl")
+
 include("datastores/kmer-counts.jl")
 include("workspace/WorkSpace.jl")
 include("processes/dbg.jl")
