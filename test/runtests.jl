@@ -1,8 +1,8 @@
-module TestBioSequenceGraphs
+module TestGenomeGraphs
 
-using BioSequenceGraphs, BioSequences, Test
+using GenomeGraphs, BioSequences, Test
 
-import BioSequenceGraphs.MerFreq
+import GenomeGraphs.MerFreq
 
 # write your own tests here
 @testset "MerFreq" begin

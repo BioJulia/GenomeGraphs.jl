@@ -1,36 +1,36 @@
-# <img align="right" src="./sticker.svg" width="30%"> BioSequenceGraphs
+# <img align="right" src="./sticker.svg" width="30%"> GenomeGraphs
 
-[![Latest release](https://img.shields.io/github/release/BioJulia/BioSequenceGraphs.svg)](https://github.com/BioJulia/BioSequenceGraphs/releases/latest)
-[![MIT license](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/BioJulia/BioSequenceGraphs.jl/blob/master/LICENSE) 
-[![Stable documentation](https://img.shields.io/badge/docs-stable-blue.svg)](https://biojulia.github.io/BioSequenceGraphs/stable)
+[![Latest release](https://img.shields.io/github/release/BioJulia/GenomeGraphs.svg)](https://github.com/BioJulia/GenomeGraphs/releases/latest)
+[![MIT license](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/BioJulia/GenomeGraphs.jl/blob/master/LICENSE) 
+[![Stable documentation](https://img.shields.io/badge/docs-stable-blue.svg)](https://biojulia.github.io/GenomeGraphs/stable)
 [![Pkg Status](http://www.repostatus.org/badges/latest/wip.svg)](http://www.repostatus.org/#wip)
-[![Chat](https://img.shields.io/gitter/room/BioJulia/BioSequenceGraphs.svg)](https://gitter.im/BioJulia/BioSequenceGraphs)
+[![Chat](https://img.shields.io/gitter/room/BioJulia/GenomeGraphs.svg)](https://gitter.im/BioJulia/GenomeGraphs)
 
 
 ## Description
 
-BioSequenceGraphs provides a representation of sequence graphs.
+GenomeGraphs provides a representation of sequence graphs.
 Such graphs represent genome assemblies and population graphs of
 genotypes/haplotypes and variation.
 
 
 ## Installation
 
-BioSequenceGraphs is currently in **pre-alpha** development.
+GenomeGraphs is currently in **pre-alpha** development.
 But you can clone BioSequenceGraphs from the Julia REPL:
 
 ```julia
-julia> Pkg.clone("https://github.com/BioJulia/BioSequenceGraphs.git")
+julia> Pkg.clone("https://github.com/BioJulia/GenomeGraphs.git")
 ```
 
 
 ## Testing
 
-BioSequenceGraphs is tested against Julia `1.X` on Linux, OS X, and Windows.
+GenomeGraphs is tested against Julia `1.X` on Linux, OS X, and Windows.
 
 **Latest build status:**
 
-[![Build Status](https://travis-ci.com/BioJulia/BioSequenceGraphs.jl.svg?branch=master)](https://travis-ci.com/BioJulia/BioSequenceGraphs.jl)
+[![Build Status](https://travis-ci.com/BioJulia/GenomeGraphs.jl.svg?branch=master)](https://travis-ci.com/BioJulia/GenomeGraphs.jl)
 [![](https://ci.appveyor.com/api/projects/status/fp8lv0bfdblf5aki?svg=true)](https://ci.appveyor.com/project/BenJWard/biosequencegraphs)
 
 

@@ -1,6 +1,6 @@
 __precompile__()
 
-module BioSequenceGraphs
+module GenomeGraphs
 
 export
     ###
@@ -94,4 +94,4 @@ include("indexes/unique-kmers.jl")
 include("datastores/kmer-counts.jl")
 include("workspace/WorkSpace.jl")
 include("processes/dbg.jl")
-end # module BioSequenceGraphs
+end # module GenomeGraphs

@@ -1,4 +1,4 @@
-using Documenter, BioSequenceGraphs
+using Documenter, GenomeGraphs
 
 makedocs(
     format = Documenter.HTML(),
@@ -14,7 +14,7 @@ makedocs(
 )
 
 deploydocs(
-    repo = "github.com/BioJulia/BioSequenceGraphs.jl.git",
+    repo = "github.com/BioJulia/GenomeGraphs.jl.git",
     deps = nothing,
     make = nothing
 )
