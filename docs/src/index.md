@@ -1,4 +1,4 @@
-# BioSequenceGraphs
+# GenomeGraphs
 
 [![Latest release](https://img.shields.io/github/release/BioJulia/BioSequenceGraphs.svg)](https://github.com/BioJulia/BioSequenceGraphs/releases/latest)
 [![MIT license](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/BioJulia/BioSequenceGraphs.jl/blob/master/LICENSE) 
@@ -6,79 +6,67 @@
 [![Pkg Status](http://www.repostatus.org/badges/latest/wip.svg)](http://www.repostatus.org/#wip)
 [![Chat](https://img.shields.io/gitter/room/BioJulia/BioSequenceGraphs.svg)](https://gitter.im/BioJulia/BioSequenceGraphs)
 
+_A graph based genomics framework for the julia/BioJulia ecosystem_
 
-## Description
+## Introduction
 
-BioSequenceGraphs provides a representation of sequence graphs.
-Such graphs represent genome assemblies and population graphs of
-genotypes/haplotypes and variation.
+GenomeGraphs is designed to do one thing - provide a framework that makes it
+simple for a human to work with genome graphs from scripts or interactively.
 
+Graphs are the core representation used by genome assemblers to represent
+genome sequence models constructed from reads. At the time of writing it is fair
+to say that until recently, their use has been limited to the internals of
+genome assemblers, which are often treated as black boxes that output a series
+of flattened sequences in FASTA format.
 
-## Installation
+The use of graphs has increased in recent years thanks to the GFA file format
+and developments in genome variation graphs and sequence to graph mappers.
 
-BioSequenceGraphs is currently in pre-release development.
-But you can clone BioSequenceGraphs from the Julia REPL:
+However, a lack of inter operation between graph-based tools, and limited tools
+for downstream graph-based analysis, contribute to a perceived complexity which
+maintains linear sequences and FASTA files as the typical unit of genomic sequence
+exchange.
 
-```julia
-julia> Pkg.clone("https://github.com/BioJulia/BioSequenceGraphs.git")
-```
+Such flattening of graph representations within pipelines with multiple steps,
+that use different types of sequencing in an iterative fashion, produces
+ever-longer linear genome sequences through an information loss process. 
+As a result, genome assembly projects are prone to error propagation and
+difficult to reproduce and control.
 
+To address these problems for the BioJulia ecosystem, GenomeGraphs provides a
+flexible framework for building and integrating information over genome graphs.
 
-## Testing
+## Framework overview
 
-BioSequenceGraphs is tested against Julia `1.X` on Linux, OS X, and Windows.
+This package implements a `SequenceDistanceGraph` type that represents sequences
+as nodes and the adjacency between sequences in links/edges. Rather than work
+directly with this graph data structure, you interact with a `WorkSpace`. A
+`WorkSpace` associates a `SequenceDistanceGraph` with raw sequencing reads, 
+sequence to graph mappings, and k-mer counts. The `WorkSpace` and the API 
+provides a working environment that enables you to project different kinds of 
+information over a graph, and navigate and analyse each node of a sequence graph.
 
-**Latest build status:**
+Within the `WorkSpace`, you will find `DataStore` types permit random access to
+short, linked, and long read sequences stored on disk in `BioSequences.jl`'s
+native bit encoding. Each datastore has an associated `Mapper` in the workspace
+that contains the output from mapping said reads onto the graph. `KmerCounts`
+allow you to compute k-mer coverage over the graph from sequencing data, enabling
+coverage analysis. Additional `DistanceGraph`s define alternative topologies over
+`SequenceDistanceGraph` nodes. They are typically used to represent longer range
+linkage information from various sequencing technologies.
 
-[![](https://travis-ci.com/BioJulia/BioSequenceGraphs.svg?branch=master)](https://travis-ci.com/BioJulia/BioSequenceGraphs)
-[![](https://ci.appveyor.com/api/projects/status/fp8lv0bfdblf5aki?svg=true)](https://ci.appveyor.com/project/BenJWard/biosequencegraphs)
+Finally, a `NodeView` abstraction provides a proxy to a node, with methods to
+navigate a graph and access mapped data.
 
+This framework is intended to allow the user to expore genome graphs interactively
+and to create processing methods for assembly or downstream analyses.
 
+## TLDR; Package features
 
-## Contributing
-
-We appreciate contributions from users including reporting bugs, fixing
-issues, improving performance and adding new features.
-
-Take a look at the [contributing files](https://github.com/BioJulia/Contributing)
-detailed contributor and maintainer guidelines, and code of conduct.
-
-
-### Financial contributions
-
-We also welcome financial contributions in full transparency on our
-[open collective](https://opencollective.com/biojulia).
-Anyone can file an expense. If the expense makes sense for the development
-of the community, it will be "merged" in the ledger of our open collective by
-the core contributors and the person who filed the expense will be reimbursed.
-
-
-## Backers & Sponsors
-
-Thank you to all our backers and sponsors!
-
-Love our work and community? [Become a backer](https://opencollective.com/biojulia#backer).
-
-[![backers](https://opencollective.com/biojulia/backers.svg?width=890)](https://opencollective.com/biojulia#backers)
-
-Does your company use BioJulia? Help keep BioJulia feature rich and healthy by
-[sponsoring the project](https://opencollective.com/biojulia#sponsor)
-Your logo will show up here with a link to your website.
-
-[![](https://opencollective.com/biojulia/sponsor/0/avatar.svg)](https://opencollective.com/biojulia/sponsor/0/website)
-[![](https://opencollective.com/biojulia/sponsor/1/avatar.svg)](https://opencollective.com/biojulia/sponsor/1/website)
-[![](https://opencollective.com/biojulia/sponsor/2/avatar.svg)](https://opencollective.com/biojulia/sponsor/2/website)
-[![](https://opencollective.com/biojulia/sponsor/3/avatar.svg)](https://opencollective.com/biojulia/sponsor/3/website)
-[![](https://opencollective.com/biojulia/sponsor/4/avatar.svg)](https://opencollective.com/biojulia/sponsor/4/website)
-[![](https://opencollective.com/biojulia/sponsor/5/avatar.svg)](https://opencollective.com/biojulia/sponsor/5/website)
-[![](https://opencollective.com/biojulia/sponsor/6/avatar.svg)](https://opencollective.com/biojulia/sponsor/6/website)
-[![](https://opencollective.com/biojulia/sponsor/7/avatar.svg)](https://opencollective.com/biojulia/sponsor/7/website)
-[![](https://opencollective.com/biojulia/sponsor/8/avatar.svg)](https://opencollective.com/biojulia/sponsor/8/website)
-[![](https://opencollective.com/biojulia/sponsor/9/avatar.svg)](https://opencollective.com/biojulia/sponsor/9/website)
-
-
-## Questions?
-
-If you have a question about contributing or using BioJulia software, come
-on over and chat to us on [Gitter](https://gitter.im/BioJulia/General), or you can try the
-[Bio category of the Julia discourse site](https://discourse.julialang.org/c/domain/bio).
+- Efficient on-disk (buffered) data stores for sequencing reads.
+- A simple graph data-structure for representing assembled genomes.
+- TODO: Transparent mapping of sequencing reads onto graphs.
+- TODO: Kmer counts and coverage projection over genome graph nodes.
+- Workspaces binding a genome graph, mapped sequences, kmer counts, and annotation.
+- De-novo genome assembly utilities:
+  - de-Bruijn graph construction, with tip-clipping & bubble-popping.

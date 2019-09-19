@@ -308,6 +308,7 @@ function get_previous_nodes(sg::SequenceDistanceGraph, n::NodeID)
             push!(r, -destination(link))
         end
     end
+    return r
 end
 
 function dump_to_gfa1(sg, filename)
@@ -345,6 +346,55 @@ function dump_to_gfa1(sg, filename)
     end
     close(gfa)
     close(fasta)
+end
+
+function add_nodes!(sg::SequenceDistanceGraph{S}, fa::FASTA.Reader) where {S<:BioSequence}
+    rec = FASTA.Record()
+    rcnodes = 0
+    firstlen = n_nodes(sg)
+    while !eof(fa)
+        read!(fa, rec)
+        if iscanonical(s)
+            add_node!(sg, s)
+        else
+            add_node!(sg, reverse_complement!(s))
+            rcnodes += 1
+        end
+    end
+    @info string("Read ", n_nodes(sg) - firstlen, " nodes from file (", rcnodes, " canonised).")
+    return sg
+end
+
+"""
+    load_from_gfa1!(sg::SequenceDistanceGraph{S}, gfafile::AbstractString, fafile::AbstractString) where {S<:BioSequence}
+
+Load a graph from a GFAv1 formatted file, and associated FASTA file of node sequences.
+
+!!! note
+    The GFA format permits storing sequences of the graph nodes in a seperate fasta
+    file, instead of in the GFA file. This is so as the sequences of the graph
+    nodes can be easily fed into other tools that typically accept FASTA files
+    as input. Many assemblers also output a GFA + FASTA combo. 
+    Therefore, this method asks for the filepath of a GFAv1 file, as well as a
+    filepath to a FASTA formatted file. This method reads the node sequences from
+    the FASTA file, before getting the links between nodes from the GFAv1
+    file.   
+"""
+function load_from_gfa1!(sg::SequenceDistanceGraph{S},
+                         gfafile::AbstractString,
+                         fafile::AbstractString) where {S<:BioSequence}
+    @info "Loading graph"
+    @info string("Graph FASTA filename: ", fafile)
+    # Load all the sequences from FASTA file. If they are not canonical, flip them,
+    # and remember that they are flipped.
+    @info string("Loading sequences from ", fafile)
+    fardr = open(FASTA.Reader, fafile)
+    add_nodes!(sg, fardr)
+    @info string("Loading links from ", gfafile)
+    gfas = open(gfafile, "r")
+    for line in eachline(gfas)
+        
+    end
 end
 
 Base.summary(io::IO, sdg::SequenceDistanceGraph) = print(io, "Sequence distance graph (", n_nodes(sdg), " nodes)")

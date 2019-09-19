@@ -22,6 +22,9 @@ However these small editing operations are required for developers.
 If you find yourself needing these methods, you will have to explicitly import
 them, as they are not exported from the module.
 
+If you find yourself wanting to edit the graph manually, it's a good idea to
+ask the package authors listed in the `Project.toml` or `.github/CODEOWNERS`.
+
 ```@docs
 add_node!
 remove_node!
