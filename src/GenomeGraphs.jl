@@ -13,6 +13,7 @@ export
     LongReads,
     LinkedReads,
     buffer,
+    FwRv,
     
     # FASTX
     FASTA,
