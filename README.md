@@ -2,7 +2,7 @@
 
 [![Latest release](https://img.shields.io/github/release/BioJulia/GenomeGraphs.svg)](https://github.com/BioJulia/GenomeGraphs/releases/latest)
 [![MIT license](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/BioJulia/GenomeGraphs.jl/blob/master/LICENSE) 
-[![Stable documentation](https://img.shields.io/badge/docs-stable-blue.svg)](https://biojulia.github.io/GenomeGraphs/stable)
+[![Stable documentation](https://img.shields.io/badge/docs-stable-blue.svg)](https://biojulia.github.io/GenomeGraphs.jl/stable)
 [![Pkg Status](http://www.repostatus.org/badges/latest/wip.svg)](http://www.repostatus.org/#wip)
 [![Chat](https://img.shields.io/gitter/room/BioJulia/GenomeGraphs.svg)](https://gitter.im/BioJulia/GenomeGraphs)
 
@@ -17,7 +17,7 @@ genotypes/haplotypes and variation.
 ## Installation
 
 GenomeGraphs is currently in **pre-alpha** development.
-But you can clone BioSequenceGraphs from the Julia REPL:
+But you can clone GenomeGraphs from the Julia REPL:
 
 ```julia
 julia> Pkg.clone("https://github.com/BioJulia/GenomeGraphs.git")

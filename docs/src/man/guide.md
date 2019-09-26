@@ -28,7 +28,7 @@ the master branch to try new features before release.
 
 You can create an empty genome graph workspace with the empty constructor:
 
-```@example
+```julia
 using GenomeGraphs
 
 ws = WorkSpace()
@@ -67,9 +67,9 @@ text files), you can find standalone docs for the package
 documented there, are repeated in the Library section of this manual here, for
 convenience.
 
-Anyway, let's build our first paired end reads datastore!
+Anyway, let's see how to build a paired end reads datastore!
 
-```@example dbgeg
+```julia
 using GenomeGraphs
 
 fwq = open(FASTQ.Reader, "test/ecoli_pe_R1.fastq")
@@ -78,13 +78,14 @@ rvq = open(FASTQ.Reader, "test/ecoli_pe_R2.fastq")
 ds = PairedReads(fwq, rvq, "ecoli-test-paired", "my-ecoli", 250, 300, 0, FwRv)
 ```
 
-Here I gave my datastore the base filename of "ecoli-test-paired", and gave the
-datastore a name of "my-ecoli". I set a minimum length for the reads at 250
-base pairs, and the maximum length to 300 base pairs. Reads that are too short
-are discarded, reads that are too long are truncated.
+Here "ecoli-test-paired" is provided as the base filename of the datastore, the
+datastore is given the name of "my-ecoli", this name will be used to identify it
+in the workspace later. The minimum length for the reads is set at 250 base
+pairs, and the maximum length is set to 300 base pairs. Reads that are too short
+will be discarded, reads that are too long are truncated.
 
 !!! note
-    I set the insert size of the paired reads to 0, since I'm not sure of it and
+    The insert size of the paired reads to 0, since I'm not sure of it and
     right now the value is optional.
 
 I set the orientation of the paired reads to `FwRv`. This is the default, and
@@ -95,7 +96,7 @@ Long Mate Pairs.
 
 Now the datastore is created, it can be added to a workspace.
 
-```@example dbgeg
+```julia
 ws = WorkSpace()
 add_paired_reads!(ws, ds)
 ```
@@ -103,14 +104,14 @@ add_paired_reads!(ws, ds)
 ### Run the `dbg` process
 
 GenomeGraphs comes with some very high-level methods in it's API, that we like
-to call *processes*. The perform some critical and common task as part of a
+to call *processes*. They perform some critical and common task as part of a
 larger workflow. Examples include constructing a de-Bruijn graph from sequencing
 reads, mapping reads to a graph, kmer counting and so on.
 
 Once a workspace has an attached read datastore, you can run the dbg process to
 produce a first de-Bruijn graph of the genome.
 
-```@example dbgeg
+```julia
 dbg!(BigDNAMer{61}, 10, ws, "my-ecoli")
 ```
 
