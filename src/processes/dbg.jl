@@ -230,7 +230,7 @@ end
 
 
 """
-function dbg!(::Type{M}, min_freq::Integer, ws::WorkSpace, name::String) where {M<:AbstractMer}
+function dbg!(ws::WorkSpace, ::Type{M}, min_freq::Integer, name::String) where {M<:AbstractMer}
     reads = paired_reads(ws, name)
     _dbg!(ws.sdg, reads, M, UInt8(min_freq))
     return ws

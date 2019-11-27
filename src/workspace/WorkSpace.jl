@@ -16,6 +16,8 @@ function WorkSpace()
                      Vector{MerCounts}())
 end
 
+graph(ws::WorkSpace) = ws.sdg
+
 """
     paired_reads(ws::WorkSpace, id::String)
 

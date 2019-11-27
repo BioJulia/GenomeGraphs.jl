@@ -27,3 +27,11 @@ end
 
 
 ## At the end we have generated a dbg with Base.length(BioSequenceGraphs.nodes(dbg))=  742343
+<<<<<<< HEAD
+=======
+start = time(); BioSequenceGraphs.new_deBruijn_Constructor(kmer_set); diff  = time()-start
+## Finished  in 605.3275558948517
+
+
+## First  we test the simple path finder on this dbg
+>>>>>>> e837ae91cbfe8ae18f58a8c8082260f9f12361e3

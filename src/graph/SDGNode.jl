@@ -50,6 +50,7 @@ macro dna2_str(seq, flag)
 end
 
 @inline empty_seq(::Type{LongSequence{DNAAlphabet{2}}}) = dna2""s
+@inline empty_seq(::Type{LongSequence{DNAAlphabet{4}}}) = dna""
 
 @inline is_deleted(n::SDGNode{S}) where {S<:BioSequence} = n.deleted
 @inline Base.length(n::SDGNode{S}) where {S<:BioSequence} = length(n.seq)

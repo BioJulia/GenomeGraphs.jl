@@ -34,7 +34,7 @@ The kmer size is set to 15.
 
 ```
 r = FASTQ.Reader(open("URnano_ecoli.fastq", "r"))
-Ecoli_reads = Set{BioSequence{DNAAlphabet{4}}}()
+Ecoli_reads = Vector{BioSequence{DNAAlphabet{4}}}()
 
 ## get first 5 reads
 for i in 1:5
@@ -74,3 +74,25 @@ DeBruijnGraph(Dict{Int64,SequenceGraphNode}(7=>SequenceGraphNode{BioSequence{DNA
 
 
 So the nodes with nodeID 6 and 3 are collapsed into node 7 and we can see that both outgoing edges of 3 are given to node 7.
+
+
+
+#### Saving to gfa
+
+Below is an example code for saving a SequenceDistanceGraph to GFA file. This allows us to load and visualize the graph using graph visualization tools.
+
+```
+# A helpful function to let me run Bandage to visualize graphs.
+const BANDAGE_BIN = "/Applications/Bandage.app/Contents/MacOS/Bandage"
+function draw_graph(gr)
+    filename = tempname()
+    BioSequenceGraphs.dump_to_gfa1(gr, filename)
+    run(`$BANDAGE_BIN image $filename.gfa $filename.png --height 500`)
+    run(`open $filename.png`)
+end
+function show_graph(gr)
+    filename = tempname()
+    BioSequenceGraphs.dump_to_gfa1(gr, filename)
+    run(`$BANDAGE_BIN load $filename.gfa`)
+end
+```

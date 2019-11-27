@@ -1,0 +1,10 @@
+H	VN:Z:1.0
+H	VN:Z:1.0
+S	seq1	LN:i:4	UR:Z:ilkgraph.gfa.fasta
+S	seq2	LN:i:4	UR:Z:ilkgraph.gfa.fasta
+S	seq3	LN:i:7	UR:Z:ilkgraph.gfa.fasta
+S	seq4	LN:i:7	UR:Z:ilkgraph.gfa.fasta
+L	seq1	-	seq3	+	3M
+L	seq1	-	seq4	+	3M
+L	seq3	+	seq2	-	3M
+L	seq4	+	seq2	-	3M

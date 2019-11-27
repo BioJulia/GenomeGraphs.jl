@@ -50,16 +50,19 @@ function SequenceDistanceGraph{S}() where {S<:BioSequence}
     return SequenceDistanceGraph{S}(Vector{SDGNode{S}}(), LinksT())
 end
 
+
 ###
-### Basic query and property access functions
+### Basic node query and property access functions
 ###
+
+@inline name(sg::SequenceDistanceGraph) = :sdg
 
 """
 Get a reference to the vector of nodes in a graph `sg`.
 
 !!! warning
     It is a bad idea to edit this vector yourself unless you know what you are
-    doing. 
+    doing.
 """
 @inline nodes(sg::SequenceDistanceGraph) = sg.nodes
 
@@ -68,14 +71,6 @@ Get a reference to the vector of nodes in a graph `sg`.
 
 "Iterate over every node ID in the sequence distance graph `sg`."
 @inline each_node_id(sg::SequenceDistanceGraph) = eachindex(nodes(sg))
-
-"""
-Get a reference to the vector of vectors of links in a graph `sg`.
-
-!!! warning
-    It is a bad idea to edit this vector yourself unless you know what you are doing.
-"""
-@inline links(sg::SequenceDistanceGraph) = sg.links
 
 @inline function check_node_id(sg::SequenceDistanceGraph, i::NodeID)
     if 0 < abs(i) ≤ n_nodes(sg)
@@ -102,12 +97,68 @@ correlative node id `n`.
     return node_unsafe(sg, n)
 end
 
+"""
+    sequence_unsafe(sg::SequenceDistanceGraph, n::NodeID)
+
+Get the reference to a node's underlying sequence object.
+
+!!! warning
+    This method is unsafe, no checking of node id's occurs and you get a
+    reference to the node's sequence object - not a copy, so doing transformation
+    operations (reverse_complement, setindex, etc.) to it will probably screw up
+    the graph!
+"""
+@inline sequence_unsafe(sg::SequenceDistanceGraph, n::NodeID) = sequence(node_unsafe(sg, n))
+
+"""
+    sequence(sg::SequenceDistanceGraph, n::NodeID)
+
+Get the full sequence of a node in a sequence distance graph using its
+correlative node id `n`.
+
+!!! note
+    `sequence` accepts a NodeID that can be positive or negative.
+    Nodes represent stretches of sequence in a canonical orientation, if you ask
+    for for the sequence of say the third node, the positive node id 3
+    (which denotes traversing the third node in the forward direction),
+    gives you the canonical sequence. If you use the negative ID -3
+    (which denotes traversing the third node in the reverse direction), you will
+    get the reverse complement of the node's canonical (forward) sequence.
+
+!!! note
+    It is safe to modify the returned sequence without screwing up your graph,
+    yet thanks to BioSequences.jl's copy on write system for LongSequences, data
+    copying will only occur if nessecery. You get the best of both worlds.
+"""
+function sequence(sg::SequenceDistanceGraph, n::NodeID)
+    check_node_id(sg, n)
+    seqref = sequence_unsafe(sg, n)
+    outseq = typeof(seqref)(seqref, 1:lastindex(seqref))
+    if n < 0
+        reverse_complement!(outseq)
+    end
+    return outseq
+end
+
+
+###
+### Basic link query and property access functions
+###
+
+"""
+Get a reference to the vector of vectors of links in a graph `sg`.
+
+!!! warning
+    It is a bad idea to edit this vector yourself unless you know what you are doing.
+"""
+@inline links(sg::SequenceDistanceGraph) = sg.links
+
 @inline links_unsafe(sg::SequenceDistanceGraph, n::NodeID) = @inbounds links(sg)[abs(n)]
 
 """
     links(sg::SequenceGraph, n::NodeID)
 
-Get all of the links of a Node of a sequence distance graph using its 
+Get all of the links of a Node of a sequence distance graph using its
 correlative node id `n`.
 
 !!! note
@@ -120,17 +171,14 @@ correlative node id `n`.
     return links_unsafe(sg, n)
 end
 
-@inline sequence_unsafe(sg::SequenceDistanceGraph, n::NodeID) = sequence(node_unsafe(sg, n))
-
-"""
-    sequence(sg::SequenceDistanceGraph, n::NodeID)
-
-Get the full sequence of a node in a sequence distance graph using its
-correlative node id `n`.
-"""
-function sequence(sg::SequenceDistanceGraph, n::NodeID)
-    check_node_id(sg, n)
-    return sequence_unsafe(sg, n)
+function find_link(sg::SequenceDistanceGraph, src::NodeID, dst::NodeID)
+    query = DistanceGraphLink(src, dst)
+    for l in links(sg, src)
+        if l == query
+            return l
+        end 
+    end
+    return nothing
 end
 
 
@@ -187,6 +235,11 @@ end
 Remove a node from a sequence distance graph.
 
 !!! note
+    This method can accepts a NodeID that can be positive or negative.
+    E.g. providing either 5 or -5 both mean node 5 in a graph,
+    and so you will end up deleting node 5.
+
+!!! note
     Links involving this node will also be removed from the graph.
 """
 function remove_node!(sg::SequenceDistanceGraph{S}, n::NodeID) where {S<:BioSequence}
@@ -195,7 +248,7 @@ function remove_node!(sg::SequenceDistanceGraph{S}, n::NodeID) where {S<:BioSequ
         remove_link!(sg, source(oldlink), destination(oldlink))
     end
     # TODO: This is a lazy solution to getting rid of the node.
-    nodes[n] = empty_node(S)
+    nodes(sg)[abs(n)] = empty_node(S)
 end
 
 
@@ -224,13 +277,13 @@ Returns a boolean indicating whether the removal was successful.
 Reasons this function would not return `true` include that the link
 didn't exist in the graph, and so could not be removed.
 """
-function remove_link!(sg::SequenceDistanceGraph, source::NodeID, dest::NodeID)
-    slinks = links(sg, source)
+function remove_link!(sg::SequenceDistanceGraph, src::NodeID, dst::NodeID)
+    slinks = links(sg, src)
     slinkslen = length(slinks)
-    filter!(!isequal(SequenceGraphLink(source, dest, 0)), slinks)
-    dlinks = links(sg, dest)
+    filter!(!isequal(DistanceGraphLink(src, dst, 0)), slinks)
+    dlinks = links(sg, dst)
     dlinkslen = length(dlinks)
-    filter!(!isequal(SequenceGraphLink(dest, source, 0)), dlinks)
+    filter!(!isequal(DistanceGraphLink(dst, src, 0)), dlinks)
     return slinkslen != length(slinks) || dlinkslen != length(dlinks)
 end
 
@@ -262,7 +315,7 @@ function forward_links(sg::SequenceDistanceGraph, n::NodeID)
     nodelinks = links(sg, n)
     sizehint!(r, length(nodelinks))
     for link in nodelinks
-        if is_forward_from(link, n)
+        if is_forwards_from(link, n)
             push!(r, link)
         end
     end
@@ -311,21 +364,21 @@ function get_previous_nodes(sg::SequenceDistanceGraph, n::NodeID)
     return r
 end
 
-function dump_to_gfa1(sg, filename)
+function write_to_gfa1(sg, filename)
+    @info string("Saving graph to ", filename)
     fasta_filename = "$filename.fasta"
     gfa = open("$filename.gfa", "w")
     fasta = open(FASTA.Writer, fasta_filename)
-    
     println(gfa, "H\tVN:Z:1.0")
-    
     for nid in eachindex(nodes(sg))
         n = node(sg, nid)
         if n.deleted
             continue
         end
-        println(gfa, "S\tseq", nid, "\tLN:i:", length(n.seq), "\tUR:Z:", fasta_filename)
+        println(gfa, "S\tseq", nid, "\t*\tLN:i:", length(n), "\tUR:Z:", fasta_filename)
+        write(fasta, FASTA.Record(string("seq", nid), sequence(n)))
     end
-    
+    close(fasta)
     for ls in links(sg)
         for l in ls
             if source(l) <= destination(l)
@@ -345,7 +398,6 @@ function dump_to_gfa1(sg, filename)
         end
     end
     close(gfa)
-    close(fasta)
 end
 
 function add_nodes!(sg::SequenceDistanceGraph{S}, fa::FASTA.Reader) where {S<:BioSequence}
@@ -363,6 +415,92 @@ function add_nodes!(sg::SequenceDistanceGraph{S}, fa::FASTA.Reader) where {S<:Bi
     end
     @info string("Read ", n_nodes(sg) - firstlen, " nodes from file (", rcnodes, " canonised).")
     return sg
+end
+
+function find_tip_nodes!(result::Set{NodeID}, sg::SequenceDistanceGraph, min_size::Integer)
+    empty!(result)
+    for n in each_node_id(sg)
+        nd = node(sg, n)
+        if is_deleted(nd) || length(nd) > min_size
+            continue
+        end
+        fwl = forward_links(sg, n)
+        bwl = backward_links(sg, n)
+        if length(fwl) == 1 && length(bwl) == 0
+            if length(backward_links(sg, destination(first(fwl)))) > 1
+                push!(result, n)
+            end
+        end
+        if length(fwl) == 0 && length(bwl) == 1
+            if length(forward_links(sg, -destination(first(bwl)))) > 1
+                push!(result, n)
+            end
+        end
+        if isempty(fwl) && isempty(bwl)
+            push!(result, n)
+        end
+    end
+    return result
+end
+
+function find_tip_nodes(sg::SequenceDistanceGraph, min_size::Integer)
+    return find_tip_nodes!(Set{NodeID}(), sg, min_size)
+end
+
+function find_all_unitigs!(unitigs::Vector{SequenceGraphPath{G}},
+    sg::G, min_nodes::Integer) where {G<:SequenceDistanceGraph}
+    empty!(unitigs)
+    consumed = falses(n_nodes(sg))
+    for n in each_node_id(sg)
+        if consumed[n] || is_deleted(node(sg, n))
+            continue
+        end
+        consumed[n] = true
+        path = SequenceGraphPath(sg, [n])
+        
+        # Two passes, fw and bw, path is inverted twice, so still n is +
+        for pass in 1:2
+            fn = forward_links(sg, last(path))
+            while length(fn) == 1
+                dest = destination(first(fn))
+                if (!consumed[abs(dest)]) && (length(backward_links(sg, dest)) == 1)
+                    push!(path, dest)
+                    consumed[abs(dest)] = true
+                else
+                    break
+                end
+                fn = forward_links(sg, last(path))
+            end
+            reverse!(path)
+        end
+        if n_nodes(path) >= min_nodes
+            push!(unitigs, path)
+        end
+    end
+    return unitigs
+end
+
+function find_all_unitigs(sg::G, min_nodes::Integer) where {G<:SequenceDistanceGraph}
+    return find_all_unitigs!(Vector{SequenceGraphPath{G}}(), sg, min_nodes)
+end
+
+function collapse_all_unitigs!(unitigs::Vector{SequenceGraphPath{G}},
+                               newnodes::Vector{NodeID},
+                               sg::G,
+                               min_nodes::Integer,
+                               consume::Bool) where {G<:SequenceDistanceGraph}
+    
+    find_all_unitigs!(unitigs, sg, min_nodes)
+    resize!(newnodes, length(unitigs))
+    @inbounds for i in eachindex(unitigs)
+        newnodes[i] = join_path!(unitigs[i], consume)
+    end
+end
+
+function collapse_all_unitigs!(sg::SequenceDistanceGraph, min_nodes::Integer, consume::Bool)
+    unitigs = Vector{SequenceGraphPath{typeof(sg)}}()
+    newnodes = Vector{NodeID}()
+    return collapse_all_unitigs!(unitigs, newnodes, sg, min_nodes, consume)
 end
 
 """

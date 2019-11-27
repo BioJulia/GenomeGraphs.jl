@@ -324,6 +324,41 @@ function get_parents(node_id::Int64,dbg::DeBruijnGraph)
 end
 
 
+<<<<<<< HEAD
+=======
+
+"""
+TODO: We have to have a coverage information to select between two paths and decide one of them is resulted by sequencing errors
+For now deletes both tips which is absolutely wrong :D
+To overcome this we can choose to delete only the shorter path assuming that the error-prone path is shorter than the correct one
+
+    delete_end_tips(dbg::DeBruijnGraph)
+
+
+
+Using the kmer_bw_neighbours function from Ben's code
+Still using the current dictionary based design for dbg
+Only remove the tips occur resulting by errors that occur at the end of a read
+"""
+function delete_end_tips(dbg::DeBruijnGraph)
+    candidates = Vector{Int64}()
+    for link in links(dbg)
+        if Base.length(link[2])==0
+            push!(candidates,abs(link[1]))
+        end
+    end
+    ##  only contains the shortest paths for each parent (do not delete the parent though!!!)
+    println("To be removed")
+    println(to_be_removed)
+    for path in to_be_removed
+        for i in path[1:end-1]
+            delete!(nodes(dbg2),abs(i))
+            delete!(links(dbg2),abs(i))
+        end
+    end
+end
+
+>>>>>>> e837ae91cbfe8ae18f58a8c8082260f9f12361e3
 """
     delete_tips(dbg::DeBruijnGraph)
 
