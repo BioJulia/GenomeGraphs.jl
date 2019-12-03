@@ -1,0 +1,18 @@
+name: Unit testing
+on: [push, pull_request]
+jobs:
+    test:
+        runs-on: ${{ matrix.os }}
+        strategy:
+            matrix:
+                julia-version: [1.2, 1.3]
+                julia-arch: [x64]
+                os: [ubuntu-latest, windows-latest, macOS-latest]
+        steps:
+            - uses: actions/checkout@v1.0.0
+            - uses: julia-actions/setup-julia@latest
+              with:
+                  version: ${{ matrix.julia-version }}
+            - name: Install dependencies
+              run: julia ci_prep.jl
+            - uses: julia-actions/julia-runtest@latest

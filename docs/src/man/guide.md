@@ -145,7 +145,7 @@ Let's fix the tips of the graph.
 
 Tips looks like this:
 
-![tips](assets/tips.jpeg)
+![tips](tips.jpeg)
 
 See how a piece of the assembly which should be one long stretch of sequence is
 broken into 3 pieces (red) because of the existence of two tips (blue). Such

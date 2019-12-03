@@ -35,14 +35,14 @@ after_success:
           using Coverage; Codecov.submit(Codecov.process_folder())';
     fi
 
-jobs:
-    include:
-        - stage: "Documentation"
-          julia: 1.2
-          os: linux
-          script:
-              - julia -e 'using Pkg.Registry; Registry.add(Registry.RegistrySpec(url = "https://github.com/BioJulia/BioJuliaRegistry.git"))'
-              - julia -e 'using Pkg.Registry; Registry.add(Registry.RegistrySpec(url = "https://github.com/JuliaRegistries/General.git"))'
-              - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
-              - julia --project=docs/ docs/make.jl
-          after_success: skip
+#jobs:
+#    include:
+#        - stage: "Documentation"
+#          julia: 1.2
+#          os: linux
+#          script:
+#              - julia -e 'using Pkg.Registry; Registry.add(Registry.RegistrySpec(url = "https://github.com/BioJulia/BioJuliaRegistry.git"))'
+#              - julia -e 'using Pkg.Registry; Registry.add(Registry.RegistrySpec(url = "https://github.com/JuliaRegistries/General.git"))'
+#              - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
+#              - julia --project=docs/ docs/make.jl
+#          after_success: skip

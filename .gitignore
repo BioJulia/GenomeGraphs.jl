@@ -6,3 +6,7 @@
 Manifest.toml
 .ipynb_checkpoints
 *.fastq
+*.fasta
+*.gfa
+*.prseq
+logs/

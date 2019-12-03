@@ -31,8 +31,6 @@ GenomeGraphs is tested against Julia `1.X` on Linux, OS X, and Windows.
 **Latest build status:**
 
 [![Build Status](https://travis-ci.com/BioJulia/GenomeGraphs.jl.svg?branch=master)](https://travis-ci.com/BioJulia/GenomeGraphs.jl)
-[![](https://ci.appveyor.com/api/projects/status/fp8lv0bfdblf5aki?svg=true)](https://ci.appveyor.com/project/BenJWard/biosequencegraphs)
-
 
 
 ## Contributing
