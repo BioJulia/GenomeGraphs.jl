@@ -12,20 +12,6 @@ SequenceGraphPath(sg::G) where {G<:SequenceDistanceGraph} = SequenceGraphPath{G}
 @inline Base.first(p::SequenceGraphPath) = first(nodes(p))
 @inline Base.last(p::SequenceGraphPath) = last(nodes(p))
 
-#=
-function Base.reverse!(p::SequenceGraphPath)
-    nds = nodes(p)
-    for i in 1:div(lastindex(nds), 2)
-        j = lastindex(nds) - i + 1
-        @inbounds x = nds[i]
-        @inbounds y = nds[j]
-        @inbounds nds[i] = -y
-        @inbounds nds[j] = -x
-    end
-    return p
-end
-=#
-
 function Base.reverse!(p::SequenceGraphPath)
     nds = nodes(p)
     i = firstindex(nds)
@@ -46,7 +32,7 @@ function check_overlap(a::BioSequence, b::BioSequence, by::Integer)
     i′ = lastindex(a) + 1
     i = i′ - by
     j = 1
-    while i < i′ 
+    while i < i′
         if a[i] != b[j]
             return false
         end
@@ -63,11 +49,7 @@ function sequence(p::SequenceGraphPath{SequenceDistanceGraph{S}}) where {S<:BioS
     s = S()
     pnode = 0
     for n in nodes(p)
-        if n > 0
-            nseq = sequence(graph(p), n)
-        else
-            nseq = reverse_complement(sequence(graph(p), n))
-        end
+        nseq = sequence(graph(p), n)
         if pnode != 0
             # Find link between pnode output (+pnode) and n's sink (-n)
             lnk = find_link(graph(p), pnode, n)
@@ -76,7 +58,7 @@ function sequence(p::SequenceGraphPath{SequenceDistanceGraph{S}}) where {S<:BioS
                 if dst > 0
                     
                 else
-                    # Check that the overlap is valid in terms of it's sequence.
+                    # Check that the overlap is valid in terms of its sequence.
                     ovl = -dst
                     if !check_overlap(s, nseq, ovl)
                         error("Sequences do not overlap.")

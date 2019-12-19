@@ -152,10 +152,31 @@ function build_unitigs_from_sorted_kmers!(
         end
         add_node!(sg, canonical!(s))
     end
-    # A temporary check for circle problem for now.
-    if !all(used_kmers)
-        @warn "Some kmers have not been incorporated into unitigs. This may be a case of the circle problem" kmerlist[(!).(used_kmers)]
+    
+    # Check for perfect circles now.
+    next_unused = findnext(!, used_kmers, firstindex(used_kmers))
+    if !isnothing(next_unused)
+        @info "Perfect circles are present in the input mers"
+        @info "Breaking the circles and incorporating them into the graph"
     end
+    while !isnothing(next_unused)
+        start_kmer = kmerlist[next_unused]
+        end_fw = is_end_fw(start_kmer, kmerlist)
+        fwn = Vector{Kidx{M}}()
+        current_kmer = start_kmer
+        used_kmers[next_unused] = true
+        s = LongSequence{A}(current_kmer)
+        while true
+            get_fw_idxs!(fwn, current_kmer, kmerlist)
+            current_kmer = first(fwn).kmer
+            current_kmer == start_kmer && break
+            used_kmers[first(fwn).idx] = true
+            push!(s, last(current_kmer))
+        end
+        add_node!(sg, canonical!(s))
+        next_unused = findnext(!, used_kmers, next_unused)
+    end
+    
     @info string("Constructed ", length(nodes(sg)), " unitigs")
     return sg
 end
