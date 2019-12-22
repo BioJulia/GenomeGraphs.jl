@@ -1,9 +1,9 @@
 
 
 "The NodeView provides a read-only comfortable interface for graph traversal."
-struct NodeView{G<:SequenceDistanceGraph}
+struct NodeView{G<:Graphs.SequenceDistanceGraph}
     ws::WorkSpace
-    id::NodeID
+    id::Graphs.NodeID
     graph::G
 end
 
@@ -13,7 +13,7 @@ The LinkView provides a read-only interface to links in the a SequenceDistanceGr
 A LinkView can only be generated using the `next` and `prev` methods of the
 `NodeView` type.
 """
-struct LinkView{G<:SequenceDistanceGraph}
+struct LinkView{G<:Graphs.SequenceDistanceGraph}
     node_view::NodeView{G}
     distance::Int32
 end
@@ -22,7 +22,7 @@ end
     Get a view of node `nodeid` in the base SequenceDistanceGraph of the
     WorkSpace `ws`.
 """
-function node(ws::WorkSpace, nodeid::NodeID)
+function node(ws::WorkSpace, nodeid::Graphs.NodeID)
     return NodeView(ws, nodeid, ws.sdg)
 end
 

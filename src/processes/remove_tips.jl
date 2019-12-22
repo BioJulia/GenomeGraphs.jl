@@ -3,10 +3,10 @@ function remove_tips!(ws::WorkSpace, min_size::Integer)
     @info "Beginning tip removal process"
     sdg = graph(ws)
     pass = 1
-    tips = find_tip_nodes(sdg, min_size)
+    tips = Graphs.find_tip_nodes(sdg, min_size)
     ntips = length(tips)
-    utgs = Vector{SequenceGraphPath{typeof(sdg)}}()
-    newnodes = Vector{NodeID}()
+    utgs = Vector{Graphs.SequenceGraphPath{typeof(sdg)}}()
+    newnodes = Vector{Graphs.NodeID}()
     while true
         @info string("Pass number: ", pass)
         if isempty(tips)
@@ -15,13 +15,13 @@ function remove_tips!(ws::WorkSpace, min_size::Integer)
         end
         @info string("Found ", ntips, " tips")
         for tip in tips
-            remove_node!(sdg, tip)
+            Graphs.remove_node!(sdg, tip)
         end
         @info string("Removed ", ntips, " tips")
         @info "Collapsing any resulting transient paths"
-        collapse_all_unitigs!(utgs, newnodes, sdg, 2, true)
+        Graphs.collapse_all_unitigs!(utgs, newnodes, sdg, 2, true)
         pass = pass + 1
-        tips = find_tip_nodes(sdg, min_size)
+        tips = Graphs.find_tip_nodes(sdg, min_size)
         ntips = length(tips)
     end
     @info string("Finished tip removal process in ", pass, " passes")
@@ -38,7 +38,7 @@ or the suffix of the sequence itself. Otherwise the overlap is contained inside 
 Thus for each edge we produce 2 candidates that can be considered for backward neighbor search
 
 """
-function backward_candidates(sdg::SequenceDistanceGraph,K::Int64)
+function backward_candidates(sdg::Graphs.SequenceDistanceGraph,K::Int64)
     cands = Vector{Tuple{DNAKmer{K},Int64}}()
     l = Base.length(nodes(sdg))
     nodes_ = nodes(sdg)
@@ -54,7 +54,7 @@ function backward_candidates(sdg::SequenceDistanceGraph,K::Int64)
     return cands
 end
 
-function forward_candidates(sdg::SequenceDistanceGraph,K::Int64)
+function forward_candidates(sdg::Graphs.SequenceDistanceGraph,K::Int64)
     cands = Vector{Tuple{DNAKmer{K},Int64}}()
     l = Base.length(nodes(sdg))
     nodes_ = nodes(sdg)
@@ -70,7 +70,7 @@ function forward_candidates(sdg::SequenceDistanceGraph,K::Int64)
     return cands
 end
 
-function delete_tips_graph(sdg::SequenceDistanceGraph,coverage :: Vector{Float64},K::Int64)
+function delete_tips_graph(sdg::Graphs.SequenceDistanceGraph,coverage :: Vector{Float64},K::Int64)
     @info string("Coverage length : " , Base.length(coverage))
     @info string("Node length : " , Base.length(nodes(sdg)))
     @assert Base.length(nodes(sdg)) == Base.length(coverage)  "Check coverage information"

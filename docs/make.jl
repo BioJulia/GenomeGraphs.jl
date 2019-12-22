@@ -1,7 +1,7 @@
 using Documenter, GenomeGraphs
 
 makedocs(
-    modules = [GenomeGraphs],
+    modules = [GenomeGraphs, GenomeGraphs.Graphs],
     format = Documenter.HTML(),
     sitename = "GenomeGraphs.jl",
     authors = "Ben J. Ward & Arda Akdemir",
@@ -9,6 +9,9 @@ makedocs(
         "Home" => "index.md",
         "Manual" => [
             "Guide" => "man/guide.md"
+        ],
+        "API" => [
+            "Graphs submodule" => "api/Graphs.md"
         ]
     ],
     

@@ -1,5 +1,5 @@
 struct GraphStrandPosition
-    node::NodeID
+    node::Graphs.NodeID
     position::UInt32
 end
 
@@ -12,7 +12,7 @@ struct UniqueMerIndex{M<:AbstractMer}
     total_mers_per_node::Vector{UInt64}
 end
 
-@inline function isunmappable(idx::UniqueMerIndex, nodeid::NodeID)
+@inline function isunmappable(idx::UniqueMerIndex, nodeid::Graphs.NodeID)
     return idx.unique_mers_per_node[abs(nodeid)] == 0
 end
 
@@ -41,7 +41,7 @@ function _discard_nonunique_mers!(mers::Vector{Pair{M,GraphStrandPosition}}) whe
     return mers
 end
 
-function UniqueMerIndex{M}(graph::S) where {S<:SequenceDistanceGraph,M<:AbstractMer}
+function UniqueMerIndex{M}(graph::S) where {S<:Graphs.SequenceDistanceGraph,M<:AbstractMer}
     t = 0
     total_mers_per_node = zeros(UInt64, n_nodes(graph))
     for nodeid in each_node_id(graph)

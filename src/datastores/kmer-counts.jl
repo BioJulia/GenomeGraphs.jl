@@ -21,7 +21,7 @@ end
 # Construction from a sequence distance graph
 function MerCounts{M}(
     name::Symbol,
-    graph::SequenceDistanceGraph,
+    graph::Graphs.SequenceDistanceGraph,
     mode::KmerCountMode = Canonical) where {M<:AbstractMer}
     @info string("Creating an empty kmer count datastore called ", name)
     mc = MerCounts{M}(name, mode)
@@ -29,7 +29,7 @@ function MerCounts{M}(
     return mc
 end
 
-function _determine_kindex_size(::Type{M}, graph::SequenceDistanceGraph) where {M<:AbstractMer}
+function _determine_kindex_size(::Type{M}, graph::Graphs.SequenceDistanceGraph) where {M<:AbstractMer}
     # TODO: This can probably be done in parallel very simply with the distributed
     # for loop macro.
     t = 0
@@ -58,7 +58,7 @@ function _count_and_collapse!(mers::Vector{M}, counts::Vector{UInt16}) where {M<
     return nothing
 end
 
-function index!(mc::MerCounts{M}, graph::SequenceDistanceGraph) where {M<:AbstractMer}
+function index!(mc::MerCounts{M}, graph::Graphs.SequenceDistanceGraph) where {M<:AbstractMer}
     @info "Indexing kmer counts of sequence distance graph"
     @info "Populating index with sequence distance graph mers"
     # Add all Kmers from sequence distance graph.    

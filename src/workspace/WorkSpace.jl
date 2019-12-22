@@ -1,6 +1,6 @@
 
 mutable struct WorkSpace
-    sdg::SequenceDistanceGraph{LongDNASeq}
+    sdg::Graphs.SequenceDistanceGraph{LongDNASeq}
     paired_reads_datastores::Vector{PairedReads}
     long_reads_datastores::Vector{LongReads}
     linked_reads_datastores::Vector{LinkedReads}
@@ -9,7 +9,7 @@ end
 
 "Create an empty workspace"
 function WorkSpace()
-    return WorkSpace(SequenceDistanceGraph{LongDNASeq}(),
+    return WorkSpace(Graphs.SequenceDistanceGraph{LongDNASeq}(),
                      Vector{PairedReads}(),
                      Vector{LongReads}(),
                      Vector{LinkedReads}(),

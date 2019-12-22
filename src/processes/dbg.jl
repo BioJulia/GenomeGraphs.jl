@@ -89,10 +89,10 @@ function get_fw_idxs!(out::Vector{Kidx{M}}, kmer::M, kmerlist::Vector{M}) where 
     end
 end
 
-const GRAPH_TYPE = SequenceDistanceGraph{LongSequence{DNAAlphabet{4}}}
+const GRAPH_TYPE = Graphs.SequenceDistanceGraph{LongSequence{DNAAlphabet{4}}}
 
 function build_unitigs_from_sorted_kmers!(
-    sg::SequenceDistanceGraph{LongSequence{A}},
+    sg::Graphs.SequenceDistanceGraph{LongSequence{A}},
     kmerlist::Vector{M}) where {A<:DNAAlphabet,M<:AbstractMer{DNAAlphabet{2}}}
     
     
@@ -150,7 +150,7 @@ function build_unitigs_from_sorted_kmers!(
                 end_fw = is_end_fw(current_kmer, kmerlist)
             end
         end
-        add_node!(sg, canonical!(s))
+        Graphs.add_node!(sg, canonical!(s))
     end
     
     # Check for perfect circles now.
@@ -173,11 +173,11 @@ function build_unitigs_from_sorted_kmers!(
             used_kmers[first(fwn).idx] = true
             push!(s, last(current_kmer))
         end
-        add_node!(sg, canonical!(s))
+        Graphs.add_node!(sg, canonical!(s))
         next_unused = findnext(!, used_kmers, next_unused)
     end
     
-    @info string("Constructed ", length(nodes(sg)), " unitigs")
+    @info string("Constructed ", length(Graphs.nodes(sg)), " unitigs")
     return sg
 end
 
@@ -185,16 +185,16 @@ minus_one_k(::Type{Mer{A,K}}) where {A,K} = Mer{A,K-1}
 minus_one_k(::Type{BigMer{A,K}}) where {A,K} = BigMer{A,K-1}
 
 function find_unitig_overlaps(sg::GRAPH_TYPE, ::Type{M}) where {M<:AbstractMer}
-    @info string("Identifying the ", BioSequences.ksize(M) - 1, "bp (K - 1) overlaps between ", length(nodes(sg)), " unitigs")
+    @info string("Identifying the ", BioSequences.ksize(M) - 1, "bp (K - 1) overlaps between ", length(Graphs.nodes(sg)), " unitigs")
     # Save the (k-1)mer in (rev on first k-1 / fw on last k-1) or out ( fw on first k-1 / bw on last k-1)
     @debug "Sorting K - 1 overlaps as `in` or `out`"
     
-    in = Vector{Tuple{minus_one_k(M),NodeID}}()
-    out = Vector{Tuple{minus_one_k(M),NodeID}}()
-    sizehint!(in, length(nodes(sg)))
-    sizehint!(out, length(nodes(sg)))
-    for nid in eachindex(nodes(sg))
-        nodeseq = node(sg, nid).seq
+    in = Vector{Tuple{minus_one_k(M),Graphs.NodeID}}()
+    out = Vector{Tuple{minus_one_k(M),Graphs.NodeID}}()
+    sizehint!(in, length(Graphs.nodes(sg)))
+    sizehint!(out, length(Graphs.nodes(sg)))
+    for nid in eachindex(Graphs.nodes(sg))
+        nodeseq = Graphs.node(sg, nid).seq
         firstmer = minus_one_k(M)(nodeseq[1:BioSequences.ksize(M) - 1])
         @debug string("Considering node ", nid) nodeseq
         if iscanonical(firstmer)
@@ -221,7 +221,7 @@ end
 function connect_unitigs_by_overlaps!(sg::GRAPH_TYPE, ::Type{M}) where {M<:AbstractMer}
     in, out = find_unitig_overlaps(sg, M)
     ol = length(out)
-    @info string("Linking ", length(nodes(sg)), " unitigs by their ", BioSequences.ksize(M) - 1, "bp (K - 1) overlaps")
+    @info string("Linking ", length(Graphs.nodes(sg)), " unitigs by their ", BioSequences.ksize(M) - 1, "bp (K - 1) overlaps")
     # Connect all out -> in for all combinations on each kmer.
     next_out_idx = 1
     for i in in
@@ -230,7 +230,7 @@ function connect_unitigs_by_overlaps!(sg::GRAPH_TYPE, ::Type{M}) where {M<:Abstr
         end
         oidx = next_out_idx
         while oidx <= ol && first(out[oidx]) == first(i)
-            add_link!(sg, last(i), last(out[oidx]), -BioSequences.ksize(M) + 1) # No support, although we could add the DBG operation as such.
+            Graphs.add_link!(sg, last(i), last(out[oidx]), -BioSequences.ksize(M) + 1) # No support, although we could add the DBG operation as such.
             oidx += 1
         end
     end
@@ -270,7 +270,7 @@ function _dbg!(sg::GRAPH_TYPE, kmerlist::Vector{M}) where {M<:AbstractMer}
     str = string("onstructing compressed de-bruijn graph from ", length(kmerlist), ' ', BioSequences.ksize(M), "-mers")
     @info string('C', str)
     build_unitigs_from_sorted_kmers!(sg, kmerlist)
-    if n_nodes(sg) > 1
+    if Graphs.n_nodes(sg) > 1
         connect_unitigs_by_overlaps!(sg, M)
     end
     @info string("Done c", str)
