@@ -31,20 +31,6 @@ export
     BigDNAKmer,
     
     ###
-    ### MerFreq
-    ###
-    collapse_sorted!,
-    collapse!,
-    collapse_into_freqs!,
-    collapse_into_freqs,
-    collapse_into_freqs_sorted!,
-    collapse_into_freqs_sorted,
-    merge_into!,
-    merge_into_sorted!,
-    hist,
-    hist!,
-    
-    ###
     ### MerCounts
     ###
     MerCounts,
@@ -63,13 +49,11 @@ export
     dbg!,
     remove_tips!
 
-include("Graphs.jl")
+include("MerTools.jl")   # MerTools submodule.
+include("Graphs.jl")     # Graphs submodule.
 
 using BioSequences, FASTX, ReadDatastores
 import BioSequences.EveryMerIterator
-
-include("mertools/MerFreq.jl")
-include("mertools/counting.jl")
 
 include("indexes/unique-kmers.jl")
 

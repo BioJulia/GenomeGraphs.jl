@@ -7,6 +7,7 @@ export
     SDGLink,
     SequenceDistanceGraph,
     SDG,
+    SequenceDistanceGraphPath,
     
     # Nodes and sequences
     name,
@@ -241,7 +242,7 @@ function SequenceDistanceGraph{S}() where {S<:BioSequence}
     return SequenceDistanceGraph{S}(Vector{SDGNode{S}}(), LinksVecVec())
 end
 
-struct SequenceGraphPath{G<:SequenceDistanceGraph}
+struct SequenceDistanceGraphPath{G<:SequenceDistanceGraph}
     sg::G
     nodes::Vector{NodeID}
 end
@@ -506,7 +507,7 @@ function disconnect_node!(sg::SequenceDistanceGraph, n::NodeID)
 end
 
 """
-    collapse_all_unitigs!(sg::SequenceDistanceGraph, min_nodes::Integer, consume::Bool)
+    collapse_all_unitigs!(unitigs::Vector{SequenceDistanceGraphPath{G}}, newnodes::Vector{NodeID}, sg::G, min_nodes::Integer, consume::Bool) where {G<:SequenceDistanceGraph}
 
 Detects all of the trivial paths through the graph that define unitigs. Such
 paths are defined as a chain of nodes with only one neighbour. Each such simple
@@ -523,7 +524,7 @@ what this function does.
 !!! note
     Modifies the SequenceDistanceGraph `sg`.
 """
-function collapse_all_unitigs!(unitigs::Vector{SequenceGraphPath{G}},
+function collapse_all_unitigs!(unitigs::Vector{SequenceDistanceGraphPath{G}},
                                newnodes::Vector{NodeID},
                                sg::G,
                                min_nodes::Integer,
@@ -814,7 +815,7 @@ function find_tip_nodes(sg::SequenceDistanceGraph, min_size::Integer)
 end
 
 """
-    find_all_unitigs!(unitigs::Vector{SequenceGraphPath{G}}, sg::G, min_nodes::Integer) where {G<:SequenceDistanceGraph}
+    find_all_unitigs!(unitigs::Vector{SequenceDistanceGraphPath{G}}, sg::G, min_nodes::Integer) where {G<:SequenceDistanceGraph}
 
 Find and return a vector of paths through the graph that represent all the
 unitigs or transitive paths in the graphs. Such paths are defined as a chain
@@ -826,7 +827,7 @@ collapsed into one larger node.
     This is useful for situations where you want to repeatedly find unitigs
     in the graph to save on additional allocations.
 """
-function find_all_unitigs!(unitigs::Vector{SequenceGraphPath{G}},
+function find_all_unitigs!(unitigs::Vector{SequenceDistanceGraphPath{G}},
     sg::G, min_nodes::Integer) where {G<:SequenceDistanceGraph}
     empty!(unitigs)
     consumed = falses(n_nodes(sg))
@@ -835,7 +836,7 @@ function find_all_unitigs!(unitigs::Vector{SequenceGraphPath{G}},
             continue
         end
         consumed[n] = true
-        path = SequenceGraphPath(sg, [n])
+        path = SequenceDistanceGraphPath(sg, [n])
         
         # Two passes, fw and bw, path is inverted twice, so still n is +
         for pass in 1:2
@@ -868,7 +869,7 @@ of nodes with only one neighbour. Such simple regions of the graph can safely be
 collapsed into one larger node.
 """
 function find_all_unitigs(sg::G, min_nodes::Integer) where {G<:SequenceDistanceGraph}
-    return find_all_unitigs!(Vector{SequenceGraphPath{G}}(), sg, min_nodes)
+    return find_all_unitigs!(Vector{SequenceDistanceGraphPath{G}}(), sg, min_nodes)
 end
 
 
@@ -960,16 +961,16 @@ end
 ### SequenceDistanceGraph path
 ###
 
-SequenceGraphPath(sg::G) where {G<:SequenceDistanceGraph} = SequenceGraphPath{G}(sg, Vector{NodeID}())
+SequenceDistanceGraphPath(sg::G) where {G<:SequenceDistanceGraph} = SequenceDistanceGraphPath{G}(sg, Vector{NodeID}())
 
-@inline nodes(p::SequenceGraphPath) = p.nodes
-@inline n_nodes(p::SequenceGraphPath) = length(nodes(p))
-@inline Base.push!(p::SequenceGraphPath, n::NodeID) = push!(nodes(p), n)
-@inline graph(p::SequenceGraphPath) = p.sg
-@inline Base.first(p::SequenceGraphPath) = first(nodes(p))
-@inline Base.last(p::SequenceGraphPath) = last(nodes(p))
+@inline nodes(p::SequenceDistanceGraphPath) = p.nodes
+@inline n_nodes(p::SequenceDistanceGraphPath) = length(nodes(p))
+@inline Base.push!(p::SequenceDistanceGraphPath, n::NodeID) = push!(nodes(p), n)
+@inline graph(p::SequenceDistanceGraphPath) = p.sg
+@inline Base.first(p::SequenceDistanceGraphPath) = first(nodes(p))
+@inline Base.last(p::SequenceDistanceGraphPath) = last(nodes(p))
 
-function Base.reverse!(p::SequenceGraphPath)
+function Base.reverse!(p::SequenceDistanceGraphPath)
     nds = nodes(p)
     i = firstindex(nds)
     j = lastindex(nds)
@@ -1002,7 +1003,7 @@ end
 # TODO: This function currently does not check for deleted nodes in a graph.
 # It probably should throw an error if a node is deleted and you're trying to
 # use it in a path.
-function sequence(p::SequenceGraphPath{SequenceDistanceGraph{S}}) where {S<:BioSequence}
+function sequence(p::SequenceDistanceGraphPath{SequenceDistanceGraph{S}}) where {S<:BioSequence}
     s = S()
     pnode = 0
     for n in nodes(p)
@@ -1035,7 +1036,7 @@ function sequence(p::SequenceGraphPath{SequenceDistanceGraph{S}}) where {S<:BioS
     return s
 end
 
-function join_path!(p::SequenceGraphPath, consume::Bool)
+function join_path!(p::SequenceDistanceGraphPath, consume::Bool)
     pnodes = Set{NodeID}()
     for n in nodes(p)
         push!(pnodes, n)

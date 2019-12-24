@@ -260,9 +260,9 @@ end
 function _dbg!(sg::GRAPH_TYPE, ds::PairedReads, ::Type{M}, min_freq::UInt8) where {M<:AbstractMer}
     @info "Counting kmers in datastore"
     # In the future do a better kmer counting - but this will do for e.coli to prove a point.
-    spectra = build_freq_list(M, buffer(ds), 1:Int(length(ds)))
-    filter!(x -> freq(x) ≥ min_freq, spectra)
-    merlist = [mer(x) for x in spectra]
+    spectra = MerTools.build_freq_list(M, buffer(ds), 1:Int(length(ds)))
+    filter!(x -> MerTools.freq(x) ≥ min_freq, spectra)
+    merlist = [MerTools.mer(x) for x in spectra]
     return _dbg!(sg, merlist)
 end
 

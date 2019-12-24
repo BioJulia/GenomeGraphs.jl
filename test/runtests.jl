@@ -2,10 +2,10 @@ module TestGenomeGraphs
 
 using GenomeGraphs, BioSequences, Test
 
-import GenomeGraphs.MerFreq
+using GenomeGraphs.MerTools
 
 # write your own tests here
-@testset "MerFreq" begin
+@testset "MerCount" begin
     v = DNAMer{4}[
         mer"AAAA", mer"AAAA", mer"AAAA", mer"ATAG",
         mer"GGGG", mer"GGGG", mer"GGGT", mer"AGGT",
@@ -23,32 +23,32 @@ import GenomeGraphs.MerFreq
         return isempty(b) && a == a′
     end
     
-    @test collapse_into_freqs(v) == [
-        MerFreq{DNAMer{4}}(mer"AAAA", 3),
-        MerFreq{DNAMer{4}}(mer"AGGT", 4),
-        MerFreq{DNAMer{4}}(mer"ATAG", 1),
-        MerFreq{DNAMer{4}}(mer"GGGG", 2),
-        MerFreq{DNAMer{4}}(mer"GGGT", 1)
+    @test collapse_into_counts(v) == [
+        MerCount{DNAMer{4}}(mer"AAAA", 3),
+        MerCount{DNAMer{4}}(mer"AGGT", 4),
+        MerCount{DNAMer{4}}(mer"ATAG", 1),
+        MerCount{DNAMer{4}}(mer"GGGG", 2),
+        MerCount{DNAMer{4}}(mer"GGGT", 1)
     ]
     
-    @test collapse_into_freqs(v2) == [
-        MerFreq{DNAMer{4}}(mer"AAAA", 3),
-        MerFreq{DNAMer{4}}(mer"AAGT", 2),
-        MerFreq{DNAMer{4}}(mer"ACGT", 1),
-        MerFreq{DNAMer{4}}(mer"AGGT", 1),
-        MerFreq{DNAMer{4}}(mer"ATAG", 1),
-        MerFreq{DNAMer{4}}(mer"GGGG", 2),
-        MerFreq{DNAMer{4}}(mer"GGGT", 1)
+    @test collapse_into_counts(v2) == [
+        MerCount{DNAMer{4}}(mer"AAAA", 3),
+        MerCount{DNAMer{4}}(mer"AAGT", 2),
+        MerCount{DNAMer{4}}(mer"ACGT", 1),
+        MerCount{DNAMer{4}}(mer"AGGT", 1),
+        MerCount{DNAMer{4}}(mer"ATAG", 1),
+        MerCount{DNAMer{4}}(mer"GGGG", 2),
+        MerCount{DNAMer{4}}(mer"GGGT", 1)
     ]
     
-    @test test_merge_into(collapse_into_freqs(v), collapse_into_freqs(v2), [
-        MerFreq{DNAMer{4}}(mer"AAAA", 6),
-        MerFreq{DNAMer{4}}(mer"AAGT", 2),
-        MerFreq{DNAMer{4}}(mer"ACGT", 1),
-        MerFreq{DNAMer{4}}(mer"AGGT", 5),
-        MerFreq{DNAMer{4}}(mer"ATAG", 2),
-        MerFreq{DNAMer{4}}(mer"GGGG", 4),
-        MerFreq{DNAMer{4}}(mer"GGGT", 2)
+    @test test_merge_into(collapse_into_counts(v), collapse_into_counts(v2), [
+        MerCount{DNAMer{4}}(mer"AAAA", 6),
+        MerCount{DNAMer{4}}(mer"AAGT", 2),
+        MerCount{DNAMer{4}}(mer"ACGT", 1),
+        MerCount{DNAMer{4}}(mer"AGGT", 5),
+        MerCount{DNAMer{4}}(mer"ATAG", 2),
+        MerCount{DNAMer{4}}(mer"GGGG", 4),
+        MerCount{DNAMer{4}}(mer"GGGT", 2)
     ])
 end
 
