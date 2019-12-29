@@ -49,13 +49,12 @@ export
     dbg!,
     remove_tips!
 
-include("MerTools.jl")   # MerTools submodule.
-include("Graphs.jl")     # Graphs submodule.
+include("MerTools.jl")     # Submodule with tools for working with and counting kmers.
+include("Graphs.jl")       # Submodule defining the key Graph type and basic methods.
+include("GraphIndexes.jl") # Submodule defining types that allow indexing of a graph.
 
 using BioSequences, FASTX, ReadDatastores
 import BioSequences.EveryMerIterator
-
-include("indexes/unique-kmers.jl")
 
 include("datastores/kmer-counts.jl")
 include("workspace/WorkSpace.jl")

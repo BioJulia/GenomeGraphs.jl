@@ -22,7 +22,7 @@ jobs:
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: julia -e '
-                using CompatHelper;
+                using CompatHelper, Pkg;
                 my_registries = [
                     Pkg.RegistrySpec(
                         name = "General",

@@ -1,5 +1,17 @@
+module GraphIndexes
+
+export
+    GraphStrandPosition,
+    UniqueMerIndex,
+    isunmappable,
+    find_unique_mer
+
+using BioSequences: AbstractMer, position, ksize, fwmer, bwmer, each
+
+using ..Graphs: NodeID, sequence, each_node_id, SequenceDistanceGraph
+
 struct GraphStrandPosition
-    node::Graphs.NodeID
+    node::NodeID
     position::UInt32
 end
 
@@ -12,7 +24,7 @@ struct UniqueMerIndex{M<:AbstractMer}
     total_mers_per_node::Vector{UInt64}
 end
 
-@inline function isunmappable(idx::UniqueMerIndex, nodeid::Graphs.NodeID)
+@inline function isunmappable(idx::UniqueMerIndex, nodeid::NodeID)
     return idx.unique_mers_per_node[abs(nodeid)] == 0
 end
 
@@ -41,7 +53,7 @@ function _discard_nonunique_mers!(mers::Vector{Pair{M,GraphStrandPosition}}) whe
     return mers
 end
 
-function UniqueMerIndex{M}(graph::S) where {S<:Graphs.SequenceDistanceGraph,M<:AbstractMer}
+function UniqueMerIndex{M}(graph::S) where {S<:SequenceDistanceGraph,M<:AbstractMer}
     t = 0
     total_mers_per_node = zeros(UInt64, n_nodes(graph))
     for nodeid in each_node_id(graph)
@@ -82,3 +94,5 @@ function UniqueMerIndex{M}(graph::S) where {S<:Graphs.SequenceDistanceGraph,M<:A
     
     return UniqueMerIndex{M}(mer_to_graphposition, unique_mers_per_node, total_mers_per_node)
 end
+
+end # module
