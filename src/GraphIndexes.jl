@@ -10,6 +10,7 @@ using BioSequences: AbstractMer, position, ksize, fwmer, bwmer, each
 
 using ..Graphs: NodeID, sequence, each_node_id, SequenceDistanceGraph
 
+
 struct GraphStrandPosition
     node::NodeID
     position::UInt32
@@ -18,6 +19,11 @@ end
 Base.summary(io::IO, pos::GraphStrandPosition) = print(io, "(Node: ", pos.node, ", Base position: ", pos.position, ')')
 Base.show(io::IO, pos::GraphStrandPosition) = summary(io, pos)
 
+"""
+An index of all the unique kmers in a graph.
+
+
+"""
 struct UniqueMerIndex{M<:AbstractMer}
     mer_to_graphposition::Dict{M,GraphStrandPosition}
     unique_mers_per_node::Vector{UInt64}

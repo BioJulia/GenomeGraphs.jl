@@ -900,7 +900,7 @@ function write_to_gfa1(sg::SequenceDistanceGraph, filename::String)
             continue
         end
         println(gfa, "S\tseq", nid, "\t*\tLN:i:", length(n), "\tUR:Z:", fasta_filename)
-        write(fasta, FASTA.Record(string("seq", nid), sequence(n)))
+        write(fasta, FASTA.Record(string("seq", nid), unsafe_sequence(n)))
     end
     close(fasta)
     for ls in links(sg)
