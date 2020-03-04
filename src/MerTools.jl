@@ -283,7 +283,7 @@ end
 
 
 """
-    build_freq_list(::Type{M}, sbuf::SequenceBuffer{PairedReads}, range::UnitRange{Int}) where {M<:AbstractMer}
+    build_freq_list(::Type{M}, sbuf::DatastoreBuffer{PairedReads}, range::UnitRange{Int}) where {M<:AbstractMer}
 
 Build a sorted list (vector) of kmer counts (MerFreq), serially and in memory.
 
@@ -297,11 +297,11 @@ specified by `range` in the dataset. It then pre-allocates an array to contain
 them. It then collects the kmers, sorts, them, and then collapses them into a
 list of counts sorted by the kmer.
 """
-function build_freq_list(::Type{M}, sbuf::SequenceBuffer{PairedReads}, range::UnitRange{Int}) where {M<:AbstractMer}
-    max_read_size = maxseqlen(ReadDatastores.datastore(sbuf))
+function build_freq_list(::Type{M}, sbuf::DatastoreBuffer{<:PairedReads}, range::UnitRange{Int}) where {M<:AbstractMer}
+    max_read_size = max_read_length(ReadDatastores.datastore(sbuf))
     chunk_mers = Vector{M}(undef, length(range) * (max_read_size - ksize(M) + 1))
     wi = firstindex(chunk_mers)
-    read_sequence = LongDNASeq()
+    read_sequence = eltype(sbuf)()
     @inbounds for i in range
         for mer in each(M, load_sequence!(sbuf, i, read_sequence))
             chunk_mers[wi] = canonical(mer)
@@ -331,7 +331,7 @@ This process repeats for many chunks of kmers, building up the output list.
 This method is useful for situations where you don't want (or have the space) to
 allocate a buffer to collect all the kmers in the dataset all in one go.
 """
-function build_freq_list(::Type{M}, sbuf::SequenceBuffer{PairedReads}, range::UnitRange{Int}, chunk_size::Int) where {M<:AbstractMer}
+function build_freq_list(::Type{M}, sbuf::DatastoreBuffer{PairedReads}, range::UnitRange{Int}, chunk_size::Int) where {M<:AbstractMer}
     chunk_mers = Vector{M}(undef, chunk_size)
     chunk_freqs = Vector{MerCount{M}}()
     sizehint!(chunk_freqs, chunk_size)
@@ -339,7 +339,7 @@ function build_freq_list(::Type{M}, sbuf::SequenceBuffer{PairedReads}, range::Un
     
     read = first(range)
     lastread = last(range)
-    read_sequence = LongDNASeq()
+    read_sequence = eltype(sbuf)()
     
     mergen = each(M, load_sequence!(sbuf, read, read_sequence))
     mernext = iterate(mergen)

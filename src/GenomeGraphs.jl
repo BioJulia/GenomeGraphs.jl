@@ -20,6 +20,7 @@ export
     FASTQ,
     
     # BioSequences
+    DNAAlphabet,
     BioSequence,
     LongSequence,
     AbstractMer,

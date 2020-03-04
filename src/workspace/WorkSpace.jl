@@ -1,7 +1,7 @@
 
 mutable struct WorkSpace
     sdg::Graphs.SequenceDistanceGraph{LongDNASeq}
-    paired_reads_datastores::Vector{PairedReads}
+    paired_reads_datastores::Vector{Union{PairedReads{DNAAlphabet{2}},PairedReads{DNAAlphabet{4}}}}
     long_reads_datastores::Vector{LongReads}
     linked_reads_datastores::Vector{LinkedReads}
     mer_count_stores::Vector{MerCounts}
@@ -19,12 +19,12 @@ end
 graph(ws::WorkSpace) = ws.sdg
 
 """
-    paired_reads(ws::WorkSpace, id::String)
+    paired_reads(ws::WorkSpace, id::Symbol)
 
 Get a reference to the `PairedReads` in the workspace that has the name
 specified by `nm`.
 """
-function paired_reads(ws::WorkSpace, nm::String)
+function paired_reads(ws::WorkSpace, nm::Symbol)
     for ds in ws.paired_reads_datastores
         if name(ds) == nm
             return ds

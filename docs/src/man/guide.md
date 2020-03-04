@@ -78,7 +78,7 @@ using GenomeGraphs
 fwq = open(FASTQ.Reader, "test/ecoli_pe_R1.fastq")
 rvq = open(FASTQ.Reader, "test/ecoli_pe_R2.fastq")
 
-ds = PairedReads(fwq, rvq, "ecoli-test-paired", "my-ecoli", 250, 300, 0, FwRv)
+ds = PairedReads{DNAAlphabet{4}}(fwq, rvq, "ecoli-test-paired", :myecoli, 250, 300, 0, FwRv)
 ```
 
 Here "ecoli-test-paired" is provided as the base filename of the datastore, the
@@ -119,7 +119,7 @@ Once a workspace has an attached read datastore, you can run the dbg process to
 produce a first de-Bruijn graph of the genome.
 
 ```julia
-dbg!(BigDNAMer{61}, 10, ws, "my-ecoli")
+dbg!(ws, BigDNAMer{61}, 10, :myecoli)
 ```
 
 !!! warning
@@ -182,8 +182,8 @@ However, most people should not have to care about the internal structure of the
 graph.
 
 To make things as simple as possible, the `NodeView` type provides a single
-entry point for node-centric analyses. The `NodeView` wraps a point to a
-workspace's graph and contains a node id. A `NodeView` gives you acces to a
+entry point for node-centric analyses. The `NodeView` wraps a reference to a
+workspace's graph and contains a node id. A `NodeView` gives you access to a
 node's underlying sequence, the nodes neighbouring nodes in the forward and
 backward directions, the reads mapped to a node, and kmer coverage over the node.
 

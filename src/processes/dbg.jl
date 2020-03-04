@@ -247,17 +247,17 @@ function dbg(::Type{M}, min_freq::Integer, file::String, name::Union{String,Noth
 end
 
 """
-    dbg!(ws::WorkSpace, ds::String, ::Type{M}, min_freq::Integer) where {M<:AbstractMer}
+    dbg!(ws::WorkSpace, ds::String, ::Type{M}, min_freq::Integer, name::Symbol) where {M<:AbstractMer}
 
 
 """
-function dbg!(ws::WorkSpace, ::Type{M}, min_freq::Integer, name::String) where {M<:AbstractMer}
+function dbg!(ws::WorkSpace, ::Type{M}, min_freq::Integer, name::Symbol) where {M<:AbstractMer}
     reads = paired_reads(ws, name)
     _dbg!(ws.sdg, reads, M, UInt8(min_freq))
     return ws
 end
 
-function _dbg!(sg::GRAPH_TYPE, ds::PairedReads, ::Type{M}, min_freq::UInt8) where {M<:AbstractMer}
+function _dbg!(sg::GRAPH_TYPE, ds::PairedReads{<:DNAAlphabet}, ::Type{M}, min_freq::UInt8) where {M<:AbstractMer}
     @info "Counting kmers in datastore"
     # In the future do a better kmer counting - but this will do for e.coli to prove a point.
     spectra = MerTools.build_freq_list(M, buffer(ds), 1:Int(length(ds)))
@@ -267,7 +267,7 @@ function _dbg!(sg::GRAPH_TYPE, ds::PairedReads, ::Type{M}, min_freq::UInt8) wher
 end
 
 function _dbg!(sg::GRAPH_TYPE, kmerlist::Vector{M}) where {M<:AbstractMer}
-    str = string("onstructing compressed de-bruijn graph from ", length(kmerlist), ' ', BioSequences.ksize(M), "-mers")
+    str = string("Constructing compressed de-bruijn graph from ", length(kmerlist), ' ', BioSequences.ksize(M), "-mers")
     @info string('C', str)
     build_unitigs_from_sorted_kmers!(sg, kmerlist)
     if Graphs.n_nodes(sg) > 1
