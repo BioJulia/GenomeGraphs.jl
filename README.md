@@ -16,12 +16,15 @@ genotypes/haplotypes and variation.
 
 ## Installation
 
-GenomeGraphs is currently in **pre-alpha** development.
-But you can clone GenomeGraphs from the Julia REPL:
+You can install GenomeGraphs from the julia REPL.
+Press `]` to enter pkg mode again, and enter the following:
 
-```julia
-julia> Pkg.clone("https://github.com/BioJulia/GenomeGraphs.git")
 ```
+pkg> add GenomeGraphs
+```
+
+If you are interested in the cutting edge of the development, please check out
+the master branch to try new features before release.
 
 
 ## Testing

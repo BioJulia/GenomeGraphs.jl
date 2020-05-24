@@ -219,7 +219,7 @@ function unsafe_collapse!(freqs::Vector{MerCount{M}}) where {M<:AbstractMer}
     return freqs
 end
 
-collapse!(freqs::Vector{MerCount{M}}) where {M<:AbstractMer} = collapse_sorted!(sort!(freqs))
+collapse!(freqs::Vector{MerCount{M}}) where {M<:AbstractMer} = unsafe_collapse!(sort!(freqs))
 
 ###
 ### Mer count histogram (kmer spectra) type.
@@ -244,16 +244,16 @@ end
 Build a histogram of kmer frequencies, excluding any kmer counts that don't meet
 `min_count`.
 """
-function hist(freqs::Vector{MerCount{M}}, min_count::Integer = 0) where {M<:AbstractMer}
+function hist(freqs::Vector{GenomeGraphs.MerTools.MerCount{M}}, min_count::Integer = 0) where {M<:AbstractMer}
     hist = zeros(UInt64, 256)
     for x in freqs
-        f = freq(x)
+        f = GenomeGraphs.MerTools.freq(x)
         if f ≥ min_count
             old = hist[f]
             hist[f] = old + 1
         end
     end
-    return MerFreqHist(hist, convert(UInt8, min_count))
+    return GenomeGraphs.MerTools.MerCountHist(hist, convert(UInt8, min_count))
 end
 
 """
