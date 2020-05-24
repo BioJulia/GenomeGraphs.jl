@@ -1,6 +1,6 @@
 # <img align="right" src="./sticker.svg" width="30%"> GenomeGraphs
 
-[![Latest release](https://img.shields.io/github/release/BioJulia/GenomeGraphs.svg)](https://github.com/BioJulia/GenomeGraphs/releases/latest)
+[![Latest release](https://img.shields.io/github/release/BioJulia/GenomeGraphs.jl.svg)](https://github.com/BioJulia/GenomeGraphs.jl/releases/latest)
 [![MIT license](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/BioJulia/GenomeGraphs.jl/blob/master/LICENSE) 
 [![Stable documentation](https://img.shields.io/badge/docs-stable-blue.svg)](https://biojulia.github.io/GenomeGraphs.jl/stable)
 [![Pkg Status](http://www.repostatus.org/badges/latest/wip.svg)](http://www.repostatus.org/#wip)
