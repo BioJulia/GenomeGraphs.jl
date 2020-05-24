@@ -27,7 +27,6 @@ matrix:
 
 ## uncomment the following lines to override the default test script
 script:
-  - julia ci_prep.jl
   - julia -e 'using Pkg; Pkg.build(); Pkg.test("GenomeGraphs", coverage = true)'
 after_success:
   - if [[ $TRAVIS_JULIA_VERSION = 1.1 ]] && [[ $TRAVIS_OS_NAME = linux ]]; then

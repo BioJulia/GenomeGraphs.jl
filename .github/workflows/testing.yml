@@ -13,6 +13,4 @@ jobs:
             - uses: julia-actions/setup-julia@latest
               with:
                   version: ${{ matrix.julia-version }}
-            - name: Install dependencies
-              run: julia ci_prep.jl
             - uses: julia-actions/julia-runtest@latest
