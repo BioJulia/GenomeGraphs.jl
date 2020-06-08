@@ -33,7 +33,7 @@ GenomeGraphs is tested against Julia `1.X` on Linux, OS X, and Windows.
 
 **Latest build status:**
 
-![](https://github.com/BioJulia/GenomeGraphs.jl/workflows/Unit%20testing/badge.svg)
+![Unit tests](https://github.com/BioJulia/GenomeGraphs.jl/workflows/Unit%20tests/badge.svg)
 ![](https://github.com/BioJulia/GenomeGraphs.jl/workflows/Documentation/badge.svg)
 
 
