@@ -244,7 +244,7 @@ end
 Build a histogram of kmer frequencies, excluding any kmer counts that don't meet
 `min_count`.
 """
-function hist(freqs::Vector{GenomeGraphs.MerTools.MerCount{M}}, min_count::Integer = 0) where {M<:AbstractMer}
+function hist(freqs::Vector{MerCount{M}}, min_count::Integer = 0) where {M<:AbstractMer}
     hist = zeros(UInt64, 256)
     for x in freqs
         f = GenomeGraphs.MerTools.freq(x)
