@@ -1,7 +1,8 @@
 # <img align="right" src="./sticker.svg" width="30%"> GenomeGraphs
 
 [![Latest release](https://img.shields.io/github/release/BioJulia/GenomeGraphs.jl.svg)](https://github.com/BioJulia/GenomeGraphs.jl/releases/latest)
-[![MIT license](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/BioJulia/GenomeGraphs.jl/blob/master/LICENSE) 
+[![MIT license](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/BioJulia/GenomeGraphs.jl/blob/master/LICENSE)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3611644.svg)](https://doi.org/10.5281/zenodo.3611644)
 [![Stable documentation](https://img.shields.io/badge/docs-stable-blue.svg)](https://biojulia.github.io/GenomeGraphs.jl/stable)
 [![Pkg Status](http://www.repostatus.org/badges/latest/wip.svg)](http://www.repostatus.org/#wip)
 [![Chat](https://img.shields.io/gitter/room/BioJulia/GenomeGraphs.svg)](https://gitter.im/BioJulia/GenomeGraphs)
@@ -29,7 +30,8 @@ the master branch to try new features before release.
 
 ## Testing
 
-GenomeGraphs is tested against Julia `1.X` on Linux, OS X, and Windows.
+GenomeGraphs is tested on Linux, OS X, and Windows, for the stable, LTS, and
+nightly builds of julia.
 
 **Latest build status:**
 

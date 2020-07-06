@@ -4,7 +4,7 @@ mutable struct WorkSpace
     paired_reads_datastores::Vector{Union{PairedReads{DNAAlphabet{2}},PairedReads{DNAAlphabet{4}}}}
     long_reads_datastores::Vector{LongReads}
     linked_reads_datastores::Vector{LinkedReads}
-    mer_count_stores::Vector{MerCounts}
+    mer_count_stores::Vector{IndexedCounts}
 end
 
 "Create an empty workspace"
@@ -13,7 +13,7 @@ function WorkSpace()
                      Vector{PairedReads}(),
                      Vector{LongReads}(),
                      Vector{LinkedReads}(),
-                     Vector{MerCounts}())
+                     Vector{IndexedCounts}())
 end
 
 graph(ws::WorkSpace) = ws.sdg

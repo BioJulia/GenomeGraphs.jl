@@ -1,7 +1,7 @@
 
-function remove_tips!(ws::WorkSpace, min_size::Integer)
+function remove_tips!(sdg::Graphs.SDG, min_size::Integer)
     @info "Beginning tip removal process"
-    sdg = graph(ws)
+    #sdg = graph(ws)
     pass = 1
     tips = Graphs.find_tip_nodes(sdg, min_size)
     ntips = length(tips)
@@ -25,5 +25,6 @@ function remove_tips!(ws::WorkSpace, min_size::Integer)
         ntips = length(tips)
     end
     @info string("Finished tip removal process in ", pass, " passes")
-    return ws
+    #return ws
+    return sdg
 end

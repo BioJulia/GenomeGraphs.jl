@@ -91,10 +91,13 @@ end
 
 const GRAPH_TYPE = Graphs.SequenceDistanceGraph{LongSequence{DNAAlphabet{4}}}
 
-function build_unitigs_from_sorted_kmers!(
+function build_unitigs!(
     sg::Graphs.SequenceDistanceGraph{LongSequence{A}},
     kmerlist::Vector{M}) where {A<:DNAAlphabet,M<:AbstractMer{DNAAlphabet{2}}}
     
+    if !issorted(kmerlist)
+        sort!(kmerlist)
+    end
     
     @info string("Constructing unitigs from ", length(kmerlist), " ", BioSequences.ksize(M), "-mers")
     used_kmers = falses(length(kmerlist))
@@ -236,43 +239,44 @@ function connect_unitigs_by_overlaps!(sg::GRAPH_TYPE, ::Type{M}) where {M<:Abstr
     end
 end
 
-"""
-"""
-function dbg(::Type{M}, min_freq::Integer, file::String, name::Union{String,Nothing} = nothing) where {M<:AbstractMer}
-    ws = WorkSpace()
-    ds = open(PairedReads, file, name)
-    add_paired_reads!(ws, ds)
-    _dbg!(ws.sdg, ds, M, UInt8(min_freq))
-    return ws
+#=
+function dbg!(ws::WorkSpace, counted_kmers::Vector{<:MerCount}, min_freq::Integer)
+    return dbg!(graph(ws), counted_kmers, min_freq)
 end
+=#
 
-"""
-    dbg!(ws::WorkSpace, ds::String, ::Type{M}, min_freq::Integer, name::Symbol) where {M<:AbstractMer}
-
-
-"""
-function dbg!(ws::WorkSpace, ::Type{M}, min_freq::Integer, name::Symbol) where {M<:AbstractMer}
-    reads = paired_reads(ws, name)
-    _dbg!(ws.sdg, reads, M, UInt8(min_freq))
-    return ws
-end
-
-function _dbg!(sg::GRAPH_TYPE, ds::PairedReads{<:DNAAlphabet}, ::Type{M}, min_freq::UInt8) where {M<:AbstractMer}
-    @info "Counting kmers in datastore"
-    # In the future do a better kmer counting - but this will do for e.coli to prove a point.
-    spectra = MerTools.build_freq_list(M, buffer(ds), 1:Int(length(ds)))
-    filter!(x -> MerTools.freq(x) ≥ min_freq, spectra)
-    merlist = [MerTools.mer(x) for x in spectra]
-    return _dbg!(sg, merlist)
-end
-
-function _dbg!(sg::GRAPH_TYPE, kmerlist::Vector{M}) where {M<:AbstractMer}
-    str = string("Constructing compressed de-bruijn graph from ", length(kmerlist), ' ', BioSequences.ksize(M), "-mers")
+#=
+function dbg!(graph::GRAPH_TYPE, kmerlist::Vector{M}) where {M<:AbstractMer}
+    str = string("onstructing compressed de-bruijn graph from ", length(kmerlist), ' ', BioSequences.ksize(M), "-mers")
     @info string('C', str)
-    build_unitigs_from_sorted_kmers!(sg, kmerlist)
-    if Graphs.n_nodes(sg) > 1
-        connect_unitigs_by_overlaps!(sg, M)
+    build_unitigs_from_sorted_kmers!(graph, kmerlist)
+    if Graphs.n_nodes(graph) > 1
+        connect_unitigs_by_overlaps!(graph, M)
     end
     @info string("Done c", str)
     return sg
+end
+=#
+
+function dbg!(sdg::GRAPH_TYPE, kmers)
+    if !(eltype(kmers) <: AbstractMer)
+        throw(ArgumentError("Didn't provide a collection of kmers for the `kmers` parameter did ya?"))
+    end
+    @info dbg_message(kmers)
+    build_unitigs!(sdg, kmers)
+    if Graphs.n_nodes(sdg) > 1
+        connect_unitigs_by_overlaps!(sdg, eltype(kmers))
+    end
+    @info "Done"
+    return sdg
+end
+
+function dbg!(sg::GRAPH_TYPE, counted_kmers::Vector{<:MerCount}, min_freq::Integer)
+    filter!(x -> freq(x) ≥ min_freq, counted_kmers)
+    merlist = [mer(x) for x in counted_kmers]
+    dbg!(sg, merlist)
+end
+
+@inline function dbg_message(x::Vector{M}) where {M<:AbstractMer}
+    return string("Constructing a compressed de-bruijn graph from ", length(x), ' ', BioSequences.ksize(M), "-mers")
 end

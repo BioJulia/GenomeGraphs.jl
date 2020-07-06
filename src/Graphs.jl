@@ -248,6 +248,7 @@ struct SequenceDistanceGraphPath{G<:SequenceDistanceGraph}
 end
 
 Base.summary(io::IO, sdg::SequenceDistanceGraph) = print(io, "Sequence distance graph (", n_nodes(sdg), " nodes)")
+Base.show(io::IO, sdg::SequenceDistanceGraph) = println(io, summary(sdg))
 
 ## Internal / not-nessecerily-safe
 
